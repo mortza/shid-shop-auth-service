@@ -88,7 +88,32 @@ class UserRepository(UserRepositoryBase):
         db.session.add(user)
         db.session.commit()
         db.create_all()
+        # send SMS
+        self._make_phone_number_validation(user)
         return user.to_dict
+
+    def validate_phone_number(self, **kwargs):
+        """
+
+        :param kwargs:
+        :return:
+        """
+        pass
+
+    @staticmethod
+    def _make_phone_number_validation(user):
+        from random import randint
+        from datetime import datetime, timedelta
+
+        v = ValidationCode()
+        v.user_id = user.id
+        v.validation_code = randint(1000, 9999)
+        v.valid_until = datetime.now() + timedelta(minutes=10)
+        db.session.add(v)
+        db.session.commit()
+        db.create_all()
+        # send SMS
+        # Your activation Code is: v.validation_code
 
     # def get_user(self, password, email=None, phone_number=None) -> dict:
     #     qb = {}

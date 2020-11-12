@@ -4,13 +4,17 @@ from application import app
 from .models import db, UserRepository
 
 
-@app.route('/', methods=['POST'])
-def test():
+#
+@app.route('/register', methods=['POST'])
+def register():
     repo = UserRepository()
     ret = repo.register(**request.args)
     return make_response(ret)
 
-#
+
+@app.route('/register', methods=['POST'])
+def validate_phone_number():
+    pass
 # @app.route('/', methods=['GET'])
 # def user_records():
 #     """Create a user via query string parameters."""
