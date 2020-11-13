@@ -3,9 +3,6 @@
 """
 from . import db
 
-from repository.users import UserRepositoryBase
-from werkzeug.security import generate_password_hash, check_password_hash
-
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -13,21 +10,26 @@ class User(db.Model):
     phone_number_is_validated = db.Column(db.Boolean, default=False)
     email = db.Column(db.String(128), unique=True)
     password = db.Column(db.String(256))
-    first_name = db.Column(db.String(50), default='')
 
-    @property
-    def phone_is_valid(self):
-        return self.phone_number_is_validated
+    first_name = db.Column(db.String(50), default='')
+    last_name = db.Column(db.String(50), default='')
 
     @property
     def to_dict(self):
         return {
-            "id": self.id,
-            "phone_number": self.phone_number,
-            "phone_is_valid": self.phone_is_valid,
-            "first_name": self.first_name,
-            "password": self.password,
+            'id': self.id,
+            'phone_number': self.phone_number,
+            'phone_is_valid': self.phone_number_is_validated,
+            'email': self.email,
+            'password': self.password,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
         }
+
+    def __init__(self, attributes=None):
+        if attributes is not None:
+            for key, value in attributes.items():
+                setattr(self, key, value)
 
 
 class ValidationCode(db.Model):
@@ -44,100 +46,3 @@ class ValidationCode(db.Model):
             'validation_code': self.validation_code,
             'valid_until': self.valid_until,
         }
-
-
-class Validator:
-    @staticmethod
-    def validate(roles, data):
-        """
-        check input data against roles
-        :param roles:
-        :param data:
-        :return:
-        """
-        err_dict = {}
-        for key in roles.keys():
-            if key not in data and roles[key] == 'req':
-                err_dict[key] = 'required field is missing'
-        return err_dict if len(err_dict) > 0 else None
-
-    @staticmethod
-    def clean_data(roles, data):
-        pass
-
-
-class UserRepository(UserRepositoryBase):
-    def __init__(self):
-        self.register_roles = {
-            'email': 'req',
-            'phone_number': 'req',
-            'password': 'req',
-        }
-
-    @staticmethod
-    def _check_user_exist(**kwargs):
-        from sqlalchemy import or_
-        return db.session.query(User). \
-            filter(or_(User.email == kwargs['email'], User.phone_number == kwargs['phone_number'])). \
-            first()
-
-    def register(self, **kwargs):
-        validation_result = Validator.validate(self.register_roles, kwargs)
-        if validation_result is not None:
-            # data is not complete
-            return validation_result
-        old_user = self._check_user_exist(**kwargs)
-        if old_user is not None:
-            raise Exception('Email or phone number is taken')
-        user = User()
-        user.phone_number = kwargs['phone_number']
-        user.email = kwargs['email']
-        user.password = generate_password_hash(kwargs['password'])
-
-        db.session.add(user)
-        db.session.commit()
-        db.create_all()
-        # send SMS
-        self._make_phone_number_validation(user)
-        return user.to_dict
-
-    def validate_phone_number(self, **kwargs):
-        """
-
-        :param kwargs:
-        :return:
-        """
-        pass
-
-    def update_user(self, **kwargs):
-        pass
-
-    # def get_user(self, password, email=None, phone_number=None) -> dict:
-    #     qb = {}
-    #
-    #     if phone_number is None and email is None:
-    #         return {}
-    #     if email is None:
-    #         qb['phone_number'] = phone_number
-    #     else:
-    #         qb['email'] = email
-    #     user = db.session.query(User).filter_by(**qb).first()
-    #     return user.to_dict if user is not None else {}
-
-    @staticmethod
-    def _make_phone_number_validation(user):
-        from random import randint
-        from datetime import datetime, timedelta
-
-        v = ValidationCode()
-        v.user_id = user.id
-        v.validation_code = randint(1000, 9999)
-        v.valid_until = datetime.now() + timedelta(minutes=10)
-        db.session.add(v)
-        db.session.commit()
-        db.create_all()
-        # send SMS
-        # Your activation Code is: v.validation_code
-
-    def delete_user(self, **kwargs):
-        pass
