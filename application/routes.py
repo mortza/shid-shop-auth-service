@@ -7,12 +7,19 @@ from .models import db, UserRepository
 #
 @app.route('/register', methods=['POST'])
 def register():
-    repo = UserRepository()
-    ret = repo.register(**request.args)
-    return make_response(ret)
+    try:
+        repo = UserRepository()
+        ret = repo.register(**request.args)
+        return make_response(ret)
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
 
 
-@app.route('/register', methods=['POST'])
+@app.route('/register/validate-phone', methods=['POST'])
 def validate_phone_number():
     pass
 # @app.route('/', methods=['GET'])

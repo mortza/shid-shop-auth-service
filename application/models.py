@@ -1,6 +1,6 @@
-"""Data models."""
-from werkzeug.routing import ValidationError
-
+"""
+    Data models.
+"""
 from . import db
 
 from repository.users import UserRepositoryBase
@@ -74,12 +74,21 @@ class UserRepository(UserRepositoryBase):
             'password': 'req',
         }
 
+    @staticmethod
+    def _check_user_exist(**kwargs):
+        from sqlalchemy import or_
+        return db.session.query(User). \
+            filter(or_(User.email == kwargs['email'], User.phone_number == kwargs['phone_number'])). \
+            first()
+
     def register(self, **kwargs):
         validation_result = Validator.validate(self.register_roles, kwargs)
         if validation_result is not None:
             # data is not complete
             return validation_result
-
+        old_user = self._check_user_exist(**kwargs)
+        if old_user is not None:
+            raise Exception('Email or phone number is taken')
         user = User()
         user.phone_number = kwargs['phone_number']
         user.email = kwargs['email']
@@ -100,6 +109,21 @@ class UserRepository(UserRepositoryBase):
         """
         pass
 
+    def update_user(self, **kwargs):
+        pass
+
+    # def get_user(self, password, email=None, phone_number=None) -> dict:
+    #     qb = {}
+    #
+    #     if phone_number is None and email is None:
+    #         return {}
+    #     if email is None:
+    #         qb['phone_number'] = phone_number
+    #     else:
+    #         qb['email'] = email
+    #     user = db.session.query(User).filter_by(**qb).first()
+    #     return user.to_dict if user is not None else {}
+
     @staticmethod
     def _make_phone_number_validation(user):
         from random import randint
@@ -114,21 +138,6 @@ class UserRepository(UserRepositoryBase):
         db.create_all()
         # send SMS
         # Your activation Code is: v.validation_code
-
-    # def get_user(self, password, email=None, phone_number=None) -> dict:
-    #     qb = {}
-    #
-    #     if phone_number is None and email is None:
-    #         return {}
-    #     if email is None:
-    #         qb['phone_number'] = phone_number
-    #     else:
-    #         qb['email'] = email
-    #     user = db.session.query(User).filter_by(**qb).first()
-    #     return user.to_dict if user is not None else {}
-
-    def update_user(self, **kwargs):
-        pass
 
     def delete_user(self, **kwargs):
         pass
