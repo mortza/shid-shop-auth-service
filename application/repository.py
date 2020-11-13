@@ -83,8 +83,6 @@ class UserRepository(UserRepositoryBase):
         user = self._check_user_exist(**kwargs)
         if user is None:
             raise Exception('user is not define!')
-        user
-
 
     # def get_user(self, password, email=None, phone_number=None) -> dict:
     #     qb = {}
