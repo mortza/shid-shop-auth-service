@@ -11,4 +11,3 @@ class UserRepositoryBase:
 
     def delete_user_account(self, **kwargs):
         pass
-
