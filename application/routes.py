@@ -1,7 +1,7 @@
 from flask import request, render_template, make_response, redirect, url_for
 from datetime import datetime as dt
 from application import app
-from .controller import UserRepository
+from .repository import UserRepository
 
 
 @app.route('/register', methods=['POST'])
