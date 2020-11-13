@@ -9,10 +9,23 @@ class User(db.Model):
     phone_number = db.Column(db.String(13), unique=True, nullable=False, default='0912-345-6789')
     phone_number_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     email = db.Column(db.String(128), unique=True, nullable=False, default='example@example.example')
-    password = db.Column(db.String(256), nullable=False, default='')
-
+    _password = db.Column(db.String(256), nullable=False, default='')
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
+
+    def __init__(self, attributes=None):
+        if attributes is not None:
+            for key, value in attributes.items():
+                setattr(self, key, value)
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        from werkzeug.security import generate_password_hash
+        self._password = generate_password_hash(value)
 
     @property
     def to_dict(self):
@@ -25,11 +38,6 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
         }
-
-    def __init__(self, attributes=None):
-        if attributes is not None:
-            for key, value in attributes.items():
-                setattr(self, key, value)
 
 
 class ValidationCode(db.Model):
