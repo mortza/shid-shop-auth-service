@@ -41,6 +41,3 @@ def login():
 @app.route('/logout', methods=['POST'])
 def logout():
     pass
-
-
-

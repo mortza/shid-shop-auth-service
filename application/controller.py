@@ -1,5 +1,4 @@
 from repository.users import UserRepositoryBase
-from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, ValidationCode
 from . import db
 
@@ -36,7 +35,8 @@ class UserRepository(UserRepositoryBase):
     def _check_user_exist(**kwargs):
         from sqlalchemy import or_
         return db.session.query(User). \
-            filter(or_(User.email == kwargs['email'], User.phone_number == kwargs['phone_number'])). \
+            filter(or_(User.email == kwargs['email'],
+                       User.phone_number == kwargs['phone_number'])). \
             first()
 
     @staticmethod

@@ -6,13 +6,13 @@ from . import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    phone_number = db.Column(db.String(11), unique=True)
-    phone_number_is_validated = db.Column(db.Boolean, default=False)
-    email = db.Column(db.String(128), unique=True)
-    password = db.Column(db.String(256))
+    phone_number = db.Column(db.String(13), unique=True, nullable=False, default='0912-345-6789')
+    phone_number_is_validated = db.Column(db.Boolean, default=False, nullable=False)
+    email = db.Column(db.String(128), unique=True, nullable=False, default='example@example.example')
+    password = db.Column(db.String(256), nullable=False, default='')
 
-    first_name = db.Column(db.String(50), default='')
-    last_name = db.Column(db.String(50), default='')
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
 
     @property
     def to_dict(self):
