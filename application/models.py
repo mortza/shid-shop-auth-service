@@ -35,6 +35,27 @@ class User(db.Model):
             for key, value in attributes.items():
                 setattr(self, key, value)
 
+    def __str__(self):
+        return "ID:{}," \
+               "Phone Number:{}-> is validated:{}," \
+               "Email Address:{}->is validated:{}," \
+               "Join Date:{}," \
+               "Name:{} {}," \
+               "Avatar:{}" \
+               "Personal Account Number:{}," \
+               "Card Number:{}" \
+               "National Card:{}". \
+            format(self.id,
+                   self.phone_number, self.phone_number_is_validated,
+                   self.email, self.email_is_validated,
+                   str(self.join_date),
+                   self.first_name, self.last_name,
+                   self.avatar_url,
+                   self.personal_account_number,
+                   self.card_number,
+                   self.national_card
+                   )
+
     @property
     def password(self):
         return self._password
@@ -51,6 +72,7 @@ class User(db.Model):
             'phone_number': self.phone_number,
             'phone_is_valid': self.phone_number_is_validated,
             'email': self.email,
+            'email_is_validated': self.email_is_validated,
             'password': self.password,
             'first_name': self.first_name,
             'last_name': self.last_name,
