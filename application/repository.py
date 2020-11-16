@@ -62,13 +62,19 @@ class UserRepository(UserRepositoryBase):
         }
 
     @staticmethod
-    def _check_user_exist(**kwargs):
+    def _check_user_exist(kwargs, by='both'):
         from sqlalchemy import or_
-        return db.session.query(User). \
-            filter(or_(User.email == kwargs['email'],
-                       User.phone_number == kwargs['phone_number'])). \
-            first()
-
+        if by == 'both':
+            return db.session.query(User). \
+                filter(or_(User.email == kwargs['email'],
+                           User.phone_number == kwargs['phone_number'])). \
+                first()
+        if by == 'phone_number':
+            return db.session.query(User). \
+                filter(User.phone_number == kwargs['phone_number']).first()
+        if by == 'email':
+            return db.session.query(User). \
+                filter(User.phone_number == kwargs['email']).first()
     # @staticmethod
     # def _make_phone_number_validation(user):
     #     from random import randint
@@ -110,7 +116,7 @@ class UserRepository(UserRepositoryBase):
     def register(self, **kwargs):
         clean_data = Validator.clean_data(self.register_roles, kwargs)
 
-        old_user = self._check_user_exist(**clean_data)
+        old_user = self._check_user_exist(clean_data)
         if old_user is not None:
             raise UserRepositoryException(message=error_codes.USER_ALREADY_EXIST_MESSAGE,
                                           error_code=error_codes.USER_ALREADY_EXIST_CODE)
@@ -126,12 +132,9 @@ class UserRepository(UserRepositoryBase):
         clean_data = Validator.clean_data(self.register_roles, kwargs)
         user = self._check_user_exist(clean_data)
         if user is None:
-            raise Exception('user is not define!')
+            raise UserRepositoryException(message=error_codes.USER_ALREADY_NOT_EXIST_CODE,
+                                          error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
 
-        if clean_data['email'] is not None and \
-                clean_data['email'] != user.email:
-            user.email = clean_data['email']
-            user.email_is_validated = False
         if clean_data['first_name'] is not None:
             user.first_name = clean_data['first_name']
         if clean_data['last_name'] is not None:
@@ -145,6 +148,7 @@ class UserRepository(UserRepositoryBase):
         if clean_data['national_card'] is not None:
             user.national_card = clean_data['national_card']
         db.session.commit()
+        return user.to_dict
 
         # def get_user(self, password, email=None, phone_number=None) -> dict:
     #     qb = {}

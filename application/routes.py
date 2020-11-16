@@ -31,7 +31,22 @@ def validate_phone_number():
 
 @app.route('/update-user-profile', methods=['POST'])
 def update_user_profile():
-    pass
+    try:
+        repo = UserRepository()
+        ret = repo.update_user_profile(**request.args)
+        return make_response(ret)
+    except UserRepositoryException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
 
 
 @app.route('/delete-user-account', methods=['POST'])
