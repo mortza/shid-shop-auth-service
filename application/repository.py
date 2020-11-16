@@ -1,6 +1,14 @@
 from repository.users import UserRepositoryBase
 from .models import User, ValidationCode
 from . import db
+from repository import error_codes
+
+
+class UserRepositoryException(Exception):
+    def __init__(self, **kwargs):
+        super(UserRepositoryException, self).__init__()
+        self.message = kwargs['message'] if 'message' in kwargs else ''
+        self.error_code = kwargs['error_code'] if 'error_code' in kwargs else -1
 
 
 class Validator:
@@ -24,7 +32,8 @@ class Validator:
         for key in roles.keys():
             if key not in data and roles[key] == 'req':
                 raise Exception('{} is empty!'.format(key))
-            cd[key] = data[key]
+            if key in data:
+                cd[key] = data[key]
         return data
 
 
@@ -32,12 +41,11 @@ class UserRepository(UserRepositoryBase):
     def __init__(self):
         self.register_roles = {
             'phone_number': 'req',
-            'email ': 'req',
+            'email': 'req',
             'password': 'req',
-
-            'phone_number_is_validated': 'opt',
-            'email_is_validated': 'opt',
-            'join_date ': 'opt',
+            # 'phone_number_is_validated': 'opt',
+            # 'email_is_validated': 'opt',
+            # 'join_date': 'opt',
             'first_name': 'opt',
             'last_name': 'opt',
             'avatar_url': 'opt',
@@ -102,11 +110,11 @@ class UserRepository(UserRepositoryBase):
     def register(self, **kwargs):
         clean_data = Validator.clean_data(self.register_roles, kwargs)
 
-        old_user = self._check_user_exist(clean_data)
+        old_user = self._check_user_exist(**clean_data)
         if old_user is not None:
-            raise Exception('Email or phone number is taken')
+            raise UserRepositoryException(message=error_codes.USER_ALREADY_EXIST_MESSAGE,
+                                          error_code=error_codes.USER_ALREADY_EXIST_CODE)
         user = User(clean_data)
-
         db.session.add(user)
         db.session.commit()
         db.create_all()
