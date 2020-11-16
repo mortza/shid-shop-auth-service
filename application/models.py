@@ -2,16 +2,33 @@
     Data models.
 """
 from . import db
+import datetime
 
 
 class User(db.Model):
+    # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    phone_number = db.Column(db.String(13), unique=True, nullable=False, default='0912-345-6789')
+    phone_number = db.Column(db.String(16), unique=True, nullable=False, default='0912-345-6789')
     phone_number_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     email = db.Column(db.String(128), unique=True, nullable=False, default='example@example.example')
+    email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     _password = db.Column(db.String(256), nullable=False, default='')
-    first_name = db.Column(db.String(50))
-    last_name = db.Column(db.String(50))
+    join_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    # optional
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
+    avatar_url = db.Column(db.String(256))
+    personal_account_number = db.Column(db.String(64))
+    card_number = db.Column(db.String(32))
+    national_card = db.Column(db.String(32))
+    # extra
+    last_password_hash = db.Column(db.String(127))
+    q1 = db.Column(db.String(127))
+    q2 = db.Column(db.String(127))
+    q3 = db.Column(db.String(127))
+    q4 = db.Column(db.String(127))
+    q5 = db.Column(db.String(127))
+    configurations = db.JSON()
 
     def __init__(self, attributes=None):
         if attributes is not None:
