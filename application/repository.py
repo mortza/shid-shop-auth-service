@@ -12,26 +12,13 @@ class UserRepositoryException(Exception):
 
 
 class Validator:
-    # @staticmethod
-    # def validate(roles, data):
-    #     """
-    #     check input data against roles
-    #     :param roles:
-    #     :param data:
-    #     :return:
-    #     """
-    #     err_dict = {}
-    #     for key in roles.keys():
-    #         if key not in data and roles[key] == 'req':
-    #             err_dict[key] = 'required field is missing'
-    #     return err_dict if len(err_dict) > 0 else None
-
     @staticmethod
-    def clean_data(roles, data):
+    def clean_data(roles, data) -> dict:
         cd = dict()
         for key in roles.keys():
             if key not in data and roles[key] == 'req':
-                raise Exception('{} is empty!'.format(key))
+                raise UserRepositoryException(message='{}::{}'.format(key, error_codes.USER_ALREADY_NOT_EXIST_CODE),
+                                              error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
             if key in data:
                 cd[key] = data[key]
         return data
@@ -43,9 +30,6 @@ class UserRepository(UserRepositoryBase):
             'phone_number': 'req',
             'email': 'req',
             'password': 'req',
-            # 'phone_number_is_validated': 'opt',
-            # 'email_is_validated': 'opt',
-            # 'join_date': 'opt',
             'first_name': 'opt',
             'last_name': 'opt',
             'avatar_url': 'opt',
@@ -62,7 +46,7 @@ class UserRepository(UserRepositoryBase):
         }
 
     @staticmethod
-    def _check_user_exist(kwargs, by='both'):
+    def _check_user_exist(kwargs, by='both') -> User:
         from sqlalchemy import or_
         if by == 'both':
             return db.session.query(User). \
@@ -75,6 +59,7 @@ class UserRepository(UserRepositoryBase):
         if by == 'email':
             return db.session.query(User). \
                 filter(User.phone_number == kwargs['email']).first()
+
     # @staticmethod
     # def _make_phone_number_validation(user):
     #     from random import randint
@@ -150,7 +135,13 @@ class UserRepository(UserRepositoryBase):
         db.session.commit()
         return user.to_dict
 
-        # def get_user(self, password, email=None, phone_number=None) -> dict:
+    def update_user_password(self, **kwargs):
+        pass
+
+    def update_user_email(self, **kwargs):
+        pass
+
+    # def get_user(self, password, email=None, phone_number=None) -> dict:
     #     qb = {}
     #
     #     if phone_number is None and email is None:
