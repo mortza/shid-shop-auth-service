@@ -20,8 +20,12 @@ class Validator:
 
     @staticmethod
     def clean_data(roles, data):
-        pass
-
+        cd = dict()
+        for key in roles.keys():
+            if key not in data and roles[key] == 'req':
+                raise Exception('{} is empty!'.format(key))
+            cd[key] = data[key]
+        return data
 
 class UserRepository(UserRepositoryBase):
     def __init__(self):
@@ -83,6 +87,7 @@ class UserRepository(UserRepositoryBase):
         user = self._check_user_exist(**kwargs)
         if user is None:
             raise Exception('user is not define!')
+
 
     # def get_user(self, password, email=None, phone_number=None) -> dict:
     #     qb = {}
