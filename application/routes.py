@@ -49,6 +49,16 @@ def update_user_profile():
                               }, 500))
 
 
+@app.route('/update-password-profile', methods=['POST'])
+def update_user_password():
+    pass
+
+
+@app.route('/update-email-profile', methods=['POST'])
+def update_user_email():
+    pass
+
+
 @app.route('/delete-user-account', methods=['POST'])
 def delete_user_account():
     pass
