@@ -33,7 +33,7 @@ def validate_phone_number():
 def update_user_profile():
     try:
         repo = UserRepository()
-        ret = repo.update_user_profile(**request.args)
+        ret = repo.update(**request.args)
         return make_response(ret)
     except UserRepositoryException as ex:
         return make_response(({
@@ -66,7 +66,33 @@ def delete_user_account():
 
 @app.route('/login', methods=['POST'])
 def login():
-    pass
+    try:
+        repo = UserRepository()
+        ret = repo.login(**request.args)
+        if ret:
+            return make_response(({
+                                      'status': 'user is login',
+                                      'code': '0',
+                                      'message': '0'
+                                  }, 500))
+        else:
+            return make_response(({
+                                      'status': 'user is not login',
+                                      'code': '-1',
+                                      'message': '-1'
+                                  }, 500))
+    except UserRepositoryException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
 
 
 @app.route('/logout', methods=['POST'])
