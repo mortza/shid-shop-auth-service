@@ -6,8 +6,11 @@ class UserRepositoryBase:
     def register(self, **kwargs):
         pass
 
-    def update_user_profile(self, **kwargs):
+    def update(self, **kwargs):
         pass
 
-    def delete_user_account(self, **kwargs):
+    def delete(self, **kwargs):
+        pass
+
+    def login(self, **kwargs):
         pass
