@@ -14,6 +14,7 @@ class User(db.Model):
     email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     _password = db.Column(db.String(256), nullable=False, default='')
     join_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    login_is_validate = db.Column(db.Boolean, default=False, nullable=False)
     # optional
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
@@ -36,15 +37,15 @@ class User(db.Model):
                 setattr(self, key, value)
 
     def __str__(self):
-        return "ID:{}," \
-               "Phone Number:{}-> is validated:{}," \
-               "Email Address:{}->is validated:{}," \
-               "Join Date:{}," \
-               "Name:{} {}," \
-               "Avatar:{}" \
-               "Personal Account Number:{}," \
-               "Card Number:{}" \
-               "National Card:{}". \
+        return "ID:{},\n" \
+               "Phone Number:{}-> is validated:{},\n" \
+               "Email Address:{}->is validated:{},\n" \
+               "Join Date:{},\n" \
+               "Name:{} {},\n" \
+               "Avatar:{},\n" \
+               "Personal Account Number:{},\n" \
+               "Card Number:{},\n" \
+               "National Card:{}\n". \
             format(self.id,
                    self.phone_number, self.phone_number_is_validated,
                    self.email, self.email_is_validated,
