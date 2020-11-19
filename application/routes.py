@@ -1,7 +1,7 @@
 from flask import request, render_template, make_response, redirect, url_for
 from datetime import datetime as dt
 from application import app
-from .repository import UserRepository, UserRepositoryException
+from .repository import UserRepository, UserException
 
 
 @app.route('/register', methods=['POST'])
@@ -10,7 +10,7 @@ def register():
         repo = UserRepository()
         ret = repo.register(**request.args)
         return make_response(ret)
-    except UserRepositoryException as ex:
+    except UserException as ex:
         return make_response(({
                                   'status': 'error',
                                   'code': ex.error_code,
@@ -35,7 +35,7 @@ def update_user_profile():
         repo = UserRepository()
         ret = repo.update(**request.args)
         return make_response(ret)
-    except UserRepositoryException as ex:
+    except UserException as ex:
         return make_response(({
                                   'status': 'error',
                                   'code': ex.error_code,
@@ -81,7 +81,7 @@ def login():
                                       'code': '-1',
                                       'message': '-1'
                                   }, 500))
-    except UserRepositoryException as ex:
+    except UserException as ex:
         return make_response(({
                                   'status': 'error',
                                   'code': ex.error_code,
