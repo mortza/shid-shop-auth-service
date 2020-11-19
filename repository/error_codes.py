@@ -6,5 +6,3 @@ KEY_IS_EMPTY_CODE = 202
 KEY_IS_EMPTY_MESSAGE = 'این کلید موجود نمی باشد'
 USER_IS_NOT_LOGIN_CODE = 203
 USER_IS_NOT_LOGIN_MESSAGE = 'بایستی ابتدا کاربر login شود.'
-UPDATE_TYPE_IS_NOT_DEFINE_CODE = 204
-UPDATE_TYPE_IS_NOT_DEFINE_MESSAGE = 'نوع آپدیت مقداردهی نشده است.'
