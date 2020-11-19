@@ -6,6 +6,27 @@ from .repository import UserRepository, UserException
 
 @app.route('/register', methods=['POST'])
 def register():
+    """
+    request.args -> {
+        'phone_number': 'req',
+        'email': 'req',
+        'password': 'req',
+        'first_name': 'opt',
+        'last_name': 'opt',
+        'avatar_url': 'opt',
+        'personal_account_number': 'opt',
+        'card_number': 'opt',
+        'national_card': 'opt',
+        'last_password': 'opt',
+        'q1': 'opt',
+        'q2': 'opt',
+        'q3': 'opt',
+        'q4': 'opt',
+        'q5': 'opt',
+        'configurations': 'opt',
+    }
+    :return:
+    """
     try:
         repo = UserRepository()
         ret = repo.register(**request.args)
@@ -24,13 +45,24 @@ def register():
                               }, 500))
 
 
-@app.route('/register/validate-phone', methods=['POST'])
-def validate_phone_number():
-    pass
-
-
-@app.route('/update-user-profile', methods=['POST'])
-def update_user_profile():
+@app.route('/user/update', methods=['POST'])
+def update():
+    """
+    request.args -> {
+            'user_name'('phone_number' or 'email') : 'opt'
+            'new_phone_number': 'opt',
+            'new_email': 'opt',
+            'new_password': 'opt',
+            'new_first_name': 'opt',
+            'new_last_name': 'opt',
+            'new_avatar_url': 'opt',
+            'new_personal_account_number': 'opt',
+            'new_card_number': 'opt',
+            'new_national_card': 'opt',
+            'new_configurations': 'opt',
+        }
+    :return:
+    """
     try:
         repo = UserRepository()
         ret = repo.update(**request.args)
@@ -49,23 +81,15 @@ def update_user_profile():
                               }, 500))
 
 
-@app.route('/update-password-profile', methods=['POST'])
-def update_user_password():
-    pass
-
-
-@app.route('/update-email-profile', methods=['POST'])
-def update_user_email():
-    pass
-
-
-@app.route('/delete-user-account', methods=['POST'])
-def delete_user_account():
-    pass
-
-
 @app.route('/login', methods=['POST'])
 def login():
+    """
+    request.args -> {
+            'user_name'('phone_number' or 'email') : 'opt'
+            'phone_number': 'opt',
+            }
+    :return:
+    """
     try:
         repo = UserRepository()
         ret = repo.login(**request.args)
@@ -97,4 +121,26 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    """
+    request.args -> {
+            'user_name'('phone_number' or 'email') : 'opt'
+            }
+    :return:
+    """
+    pass
+
+
+@app.route('/user/delete', methods=['POST'])
+def delete():
+    """
+    request.args -> {
+            'user_name'('phone_number' or 'email') : 'opt'
+            }
+    :return:
+    """
+    pass
+
+
+@app.route('/register/validate-phone', methods=['POST'])
+def validate_phone_number():
     pass
