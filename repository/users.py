@@ -14,3 +14,9 @@ class UserRepositoryBase:
 
     def login(self, **kwargs):
         pass
+
+    def logout(self,**kwargs):
+        pass
+
+    def getUser(self,**kwargs):
+        pass
