@@ -9,10 +9,11 @@ from .exceptions import UserException
 
 class UserRepository(UserRepositoryBase):
     def __init__(self):
+        # ! define roles. data extraction for registering
         self.register_roles = {
             'phone_number': 'req',
-            'email': 'req',
             'password': 'req',
+            'email': 'opt',
             'first_name': 'opt',
             'last_name': 'opt',
             'avatar_url': 'opt',
@@ -27,35 +28,37 @@ class UserRepository(UserRepositoryBase):
             'q5': 'opt',
             'configurations': 'opt',
         }
+        # ! define roles. data extraction for updating
         self.update_roles = {
-            'phone_number': 'req',
-            'first_name': 'opt',
-            'last_name': 'opt',
-            'avatar_url': 'opt',
-            'personal_account_number': 'opt',
-            'card_number': 'opt',
-            'national_card': 'opt',
+            'user_name': 'req',
+            'new_phone_number': 'opt',
+            'new_email': 'opt',
+            'new_password': 'opt',
+            'new_first_name': 'opt',
+            'new_last_name': 'opt',
+            'new_avatar_url': 'opt',
+            'new_personal_account_number': 'opt',
+            'new_card_number': 'opt',
+            'new_national_card': 'opt',
+            'new_configurations': 'opt',
         }
+        # ! define roles. data extraction for login
         self.login_roles = {
-            'phone_number': 'req',
-            'email': 'opt',
+            'user_name': 'req',
             'password': 'req',
+        }
+        # ! define roles. data extraction for logout
+        self.logout_roles = {
+            'user_name': 'req',
         }
 
     @staticmethod
-    def _check_user_exist(kwargs, by='both') -> User:
+    def _check_user_exist(user_name: str) -> User:
         from sqlalchemy import or_
-        if by == 'both':
-            return db.session.query(User). \
-                filter(or_(User.email == kwargs['email'],
-                           User.phone_number == kwargs['phone_number'])). \
-                first()
-        if by == 'phone_number':
-            return db.session.query(User). \
-                filter(User.phone_number == kwargs['phone_number']).first()
-        if by == 'email':
-            return db.session.query(User). \
-                filter(User.phone_number == kwargs['email']).first()
+        return db.session.query(User). \
+            filter(or_(User.email == user_name,
+                       User.phone_number == user_name)). \
+            first()
 
     # @staticmethod
     # def _make_phone_number_validation(user):
@@ -96,83 +99,97 @@ class UserRepository(UserRepositoryBase):
     #     pass
 
     @staticmethod
-    def _current_user(kwargs) -> User:
-        data = UserValidator.clean_data(UserRepository.register_roles, kwargs)
-        user = UserRepository._check_user_exist(data)
-        if user is None:
-            raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
-                                error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
-        return [user, data]
+    def _check_user_is_login(user: User) -> bool:
+        if user.login_is_validate is False:
+            raise UserException(message=error_codes.USER_IS_NOT_LOGIN_CODE,
+                                error_code=error_codes.USER_IS_NOT_LOGIN_MESSAGE)
+        return True
 
     def register(self, **kwargs):
-        clean_data = UserValidator.clean_data(self.register_roles, kwargs)
-
-        old_user = self._check_user_exist(clean_data)
+        # ! extract data ->
+        data = UserValidator.clean_data(self.register_roles, kwargs)
+        # ! check for user not exist ->
+        old_user = self._check_user_exist(data['user_name'])
         if old_user is not None:
             raise UserException(message=error_codes.USER_ALREADY_EXIST_MESSAGE,
                                 error_code=error_codes.USER_ALREADY_EXIST_CODE)
-        user = User(clean_data)
+        # ! <- check for user not exist
+        # ! define and create new User
+        user = User(data)
+        # ! update db ->
         db.session.add(user)
         db.session.commit()
         db.create_all()
+        # ! <- update db
         # send SMS
         # self._make_phone_number_validation(user)
         return user.to_dict
 
-    @staticmethod
-    def _update_user_profile(data: dict, user: User) -> dict:
-        if data['first_name'] is not None:
-            user.first_name = data['first_name']
-        if data['last_name'] is not None:
-            user.last_name = data['last_name']
-        if data['avatar_url'] is not None:
-            user.avatar_url = data['avatar_url']
-        if data['personal_account_number'] is not None:
-            user.personal_account_number = data['personal_account_number']
-        if data['card_number'] is not None:
-            user.card_number = data['card_number']
-        if data['national_card'] is not None:
-            user.national_card = data['national_card']
-        db.session.commit()
-        return user.to_dict
-
-    @staticmethod
-    def _update_user_password(data: dict, user: User) -> dict:
-        pass
-
-    @staticmethod
-    def _update_user_email(data: dict, user: User) -> dict:
-        pass
-
     def update(self, **kwargs):
-        [user, data] = self._current_user(kwargs)
+        # ! extract data and user ->
+        data = UserValidator.clean_data(self.update_roles, kwargs)
+        user = UserRepository._check_user_exist(data['user_name'])
+        # ! <- extract data and user
+        # ! check for user exist
+        if user is None:
+            raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
+                                error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
+        # ! check for user login
         if user.login_is_validate is False:
             raise UserException(message=error_codes.USER_IS_NOT_LOGIN_CODE,
                                 error_code=error_codes.USER_IS_NOT_LOGIN_MESSAGE)
-
-        update_type = kwargs['update_type']
-
-        if update_type == 'profile':
-            return self._update_user_profile(data, user)
-        if update_type == 'password':
-            return self._update_user_password(data, User)
-        if update_type == 'email':
-            return self._update_user_email(data, user)
-
-        raise UserException(message=error_codes.UPDATE_TYPE_IS_NOT_DEFINE_CODE,
-                            error_code=error_codes.UPDATE_TYPE_IS_NOT_DEFINE_MESSAGE)
+        # ! update user ->
+        if 'new_phone_number' in data:
+            user.phone_number_is_validated = False
+            user.phone_number = data['new_phone_number']
+        if 'new_email' in data:
+            user.email_is_validated = False
+            user.email = data['new_email']
+        if 'new_password' in data:
+            user.last_password_hash = user.password
+            user.password = data['new_password']
+        if 'new_first_name' in data:
+            user.first_name = data['new_first_name']
+        if 'new_last_name' in data:
+            user.last_name = data['new_last_name']
+        if 'new_avatar_url' in data:
+            user.avatar_url = data['new_avatar_url']
+        if 'new_personal_account_number' in data:
+            user.personal_account_number = data['new_personal_account_number']
+        if 'new_card_number' in data:
+            user.card_number = data['new_card_number']
+        if 'new_national_card' in data:
+            user.national_card = data['new_national_card']
+        # ! <- update user
+        # ! update db
+        db.session.commit()
+        return True
 
     def login(self, **kwargs):
-        [user, data] = self._current_user(kwargs)
+        # ! extract data and user ->
+        data = UserValidator.clean_data(self.login_roles, kwargs)
+        user = UserRepository._check_user_exist(data['user_name'])
+        # ! <- extract data and user
+        # ! check for user exist
+        if user is None:
+            raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
+                                error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
+        # ! check input password with user.password(hashed) ->
         from werkzeug.security import check_password_hash
         if check_password_hash(user.password, data['password']):
+            # ! update login_is_validate flag
             user.login_is_validate = True
             db.session.commit()
             return True
+        # ! <- check input password with user.password(hashed)
         return False
 
     # def logout(self, **kwargs):
-    #     [user, ] = self._current_user(kwargs)
+    #     data = UserValidator.clean_data(self.logout_roles, kwargs)
+    #     user = UserRepository._check_user_exist(data['user_name'])
+    #     if user is None:
+    #         raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
+    #                             error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
     #     user.login_is_validate = False
     #     db.session.commit()
     #     return True
