@@ -45,42 +45,6 @@ def register():
                               }, 500))
 
 
-@app.route('/user/update', methods=['POST'])
-def update():
-    """
-    request.args -> {
-            'user_name'('phone_number' or 'email') : 'opt'
-            'new_phone_number': 'opt',
-            'new_email': 'opt',
-            'new_password': 'opt',
-            'new_first_name': 'opt',
-            'new_last_name': 'opt',
-            'new_avatar_url': 'opt',
-            'new_personal_account_number': 'opt',
-            'new_card_number': 'opt',
-            'new_national_card': 'opt',
-            'new_configurations': 'opt',
-        }
-    :return:
-    """
-    try:
-        repo = UserRepository()
-        ret = repo.update(**request.args)
-        return make_response(ret)
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
-
-
 @app.route('/login', methods=['POST'])
 def login():
     """
@@ -128,6 +92,42 @@ def logout():
     :return:
     """
     pass
+
+
+@app.route('/user/update', methods=['POST'])
+def update():
+    """
+    request.args -> {
+            'user_name'('phone_number' or 'email') : 'opt'
+            'new_phone_number': 'opt',
+            'new_email': 'opt',
+            'new_password': 'opt',
+            'new_first_name': 'opt',
+            'new_last_name': 'opt',
+            'new_avatar_url': 'opt',
+            'new_personal_account_number': 'opt',
+            'new_card_number': 'opt',
+            'new_national_card': 'opt',
+            'new_configurations': 'opt',
+        }
+    :return:
+    """
+    try:
+        repo = UserRepository()
+        ret = repo.update(**request.args)
+        return make_response(ret)
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
 
 
 @app.route('/user/delete', methods=['POST'])
