@@ -5,6 +5,38 @@ from . import db
 import datetime
 
 
+class Token(db.Model):
+    def __init__(self, user_id: int, user_info: dict):
+        # ! set _user_id
+        self._user_id = user_id
+        # ! create and hashing and set _token ->
+        from datetime import datetime
+        now = datetime.now().time()
+        t = '{}{}'.format(user_id, now)
+        from werkzeug.security import generate_password_hash
+        self._token = generate_password_hash(t)
+        # ! <- create and hashing and set _token
+        # ! set _user_information
+        self._user_information = user_info
+
+    _id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    _user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    _token = db.Column(db.String(512), nullable=False, default='')
+    _device_information = db.JSON()
+
+    @property
+    def user_id(self):
+        return self.user_id
+
+    @property
+    def token(self):
+        return self._token
+
+    @property
+    def device_information(self):
+        return self._device_information
+
+
 class User(db.Model):
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
