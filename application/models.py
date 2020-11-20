@@ -6,18 +6,18 @@ import datetime
 
 
 class Token(db.Model):
-    def __init__(self, user_id: int, user_info: dict):
+    def __init__(self, user_id: int, device_info: dict):
         # ! set _user_id
         self._user_id = user_id
         # ! create and hashing and set _token ->
         from datetime import datetime
         now = datetime.now().time()
         t = '{}{}'.format(user_id, now)
-        from werkzeug.security import generate_password_hash
-        self._token = generate_password_hash(t)
+        import hashlib
+        self._token = hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest()
         # ! <- create and hashing and set _token
         # ! set _user_information
-        self._user_information = user_info
+        self._device_information = device_info
 
     _id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     _user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -46,7 +46,6 @@ class User(db.Model):
     email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     _password = db.Column(db.String(256), nullable=False, default='')
     join_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    login_is_validate = db.Column(db.Boolean, default=False, nullable=False)
     # optional
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))

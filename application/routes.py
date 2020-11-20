@@ -1,9 +1,9 @@
-from flask import request, render_template, make_response, redirect, url_for
-from datetime import datetime as dt
-from application import app
+from flask import request, make_response
+from application import app, redis_client
 from .exceptions import UserException
 from .repositories import UserRepository
-
+from repository import error_codes
+import json
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -57,19 +57,15 @@ def login():
     """
     try:
         repo = UserRepository()
-        ret = repo.login(**request.args)
-        if ret:
-            return make_response(({
-                                      'status': 'user is login',
-                                      'code': '0',
-                                      'message': '0'
-                                  }, 500))
-        else:
-            return make_response(({
-                                      'status': 'user is not login',
-                                      'code': '-1',
-                                      'message': '-1'
-                                  }, 500))
+        token, user_info = repo.login(**request.args)
+        redis_client.set(token, json.dumps(user_info))
+        ret = dict()
+        ret['login_token'] = token
+        ret['user_info'] = user_info
+        ret['status'] = 'ok'
+        ret['code'] = error_codes.OK_STATUS
+        ret['message'] = ''
+        return make_response((ret, 200))
     except UserException as ex:
         return make_response(({
                                   'status': 'error',
