@@ -4,9 +4,11 @@ from flask_migrate import Migrate
 from flask import Flask
 from dotenv import load_dotenv
 import os
+from flask_redis import FlaskRedis
 
 load_dotenv()
 app = Flask(__name__)
+redis_client = FlaskRedis(app)
 
 if os.getenv('DB_TYPE') == 'sqlite':
     Config.SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'app.db')
