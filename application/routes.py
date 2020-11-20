@@ -1,7 +1,8 @@
 from flask import request, render_template, make_response, redirect, url_for
 from datetime import datetime as dt
 from application import app
-from .repository import UserRepository, UserException
+from .exceptions import UserException
+from .repositories import UserRepository
 
 
 @app.route('/register', methods=['POST'])

@@ -1,10 +1,10 @@
 from repository.users import UserRepositoryBase
-from application.models import User, ValidationCode
+from application.models import User
 from application import db
 from repository import error_codes
 
-from .validators import UserValidator
-from .exceptions import UserException
+from application.validators import UserValidator
+from application.exceptions import UserException
 
 
 class UserRepository(UserRepositoryBase):

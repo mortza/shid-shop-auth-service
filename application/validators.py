@@ -1,4 +1,4 @@
-from application.repository import UserException
+from .exceptions import UserException
 from repository import error_codes
 
 
