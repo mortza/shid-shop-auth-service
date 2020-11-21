@@ -1,9 +1,34 @@
 from flask import request, make_response
-from application import app, redis_client
-from .exceptions import UserException
-from .repositories import UserRepository
+from application import app, redis_client, db
+from application.exceptions import UserException, TokenException, ArgsException
+from application.repositories import UserRepository
 from repository import error_codes
 import json
+from application.models import Token
+
+
+def token_is_exist(func):
+    def in_redis_or_in_db():
+        if 'token' in request.args:
+            token = request.args['token']
+        else:
+            raise ArgsException(message=error_codes.KEY_IS_EMPTY_MESSAGE,
+                                error_code=error_codes.KEY_IS_EMPTY_CODE)
+        if redis_client.get(token):
+            return func()
+        else:
+            token = db.session.query(Token).filter(Token.token == token).first()
+            if token is not None:
+                from application.models import User
+                user = db.session.query(token.user_id).filter(User.id == token.user_id).first()
+                redis_client.set(token.token, user.to_dict)
+                return func()
+            else:
+                raise TokenException(message=error_codes.TOKEN_NOT_EXIST_ON_DATABASE_MESSAGE,
+                                     error_code=error_codes.TOKEN_NOT_EXIST_ON_DATABASE_CODE)
+
+    return in_redis_or_in_db
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -81,17 +106,34 @@ def login():
 
 
 @app.route('/logout', methods=['POST'])
+@token_is_exist
 def logout():
-    """
-    request.args -> {
-            'user_name'('phone_number' or 'email') : 'opt'
-            }
-    :return:
-    """
-    pass
+    try:
+        repo = UserRepository()
+        token = repo.logout(**request.args)
+        ret = redis_client.delete(token)
+        print(ret)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': ''
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
 
 
 @app.route('/user/update', methods=['POST'])
+@token_is_exist
 def update():
     """
     request.args -> {
@@ -111,8 +153,12 @@ def update():
     """
     try:
         repo = UserRepository()
-        ret = repo.update(**request.args)
-        return make_response(ret)
+        repo.update(**request.args)
+        return make_response(({
+                                  'status': 'update',
+                                  'code': 1,
+                                  'message': 'Update completed successfully.'
+                              }, 500))
     except UserException as ex:
         return make_response(({
                                   'status': 'error',

@@ -3,6 +3,7 @@
 """
 from . import db
 import datetime
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class Token(db.Model):
@@ -28,7 +29,7 @@ class Token(db.Model):
     def user_id(self):
         return self.user_id
 
-    @property
+    @hybrid_property
     def token(self):
         return self._token
 

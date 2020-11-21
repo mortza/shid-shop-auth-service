@@ -31,16 +31,16 @@ class UserRepository(UserRepositoryBase):
         # ! define roles. data extraction for updating
         self.update_roles = {
             'user_name': 'req',
-            'new_phone_number': 'opt',
-            'new_email': 'opt',
-            'new_password': 'opt',
-            'new_first_name': 'opt',
-            'new_last_name': 'opt',
-            'new_avatar_url': 'opt',
-            'new_personal_account_number': 'opt',
-            'new_card_number': 'opt',
-            'new_national_card': 'opt',
-            'new_configurations': 'opt',
+            'phone_number': 'opt',
+            'email': 'opt',
+            'password': 'opt',
+            'first_name': 'opt',
+            'last_name': 'opt',
+            'avatar_url': 'opt',
+            'personal_account_number': 'opt',
+            'card_number': 'opt',
+            'national_card': 'opt',
+            'configurations': 'opt',
         }
         # ! define roles. data extraction for login
         self.login_roles = {
@@ -98,13 +98,6 @@ class UserRepository(UserRepositoryBase):
     #     """
     #     pass
 
-    @staticmethod
-    def _check_user_is_login(user: User) -> bool:
-        if user.login_is_validate is False:
-            raise UserException(message=error_codes.USER_IS_NOT_LOGIN_CODE,
-                                error_code=error_codes.USER_IS_NOT_LOGIN_MESSAGE)
-        return True
-
     def register(self, **kwargs):
         # ! extract data ->
         data = UserValidator.clean_data(self.register_roles, kwargs)
@@ -132,40 +125,39 @@ class UserRepository(UserRepositoryBase):
         # ! <- extract data and user
         # ! check for user exist
         if user is None:
-            raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
-                                error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
+            raise UserException(message=error_codes.USER_NOT_EXIST_MESSAGE,
+                                error_code=error_codes.USER_NOT_EXIST_CODE)
         # ! update user ->
-        if 'new_phone_number' in data:
+        if 'phone_number' in data:
             user.phone_number_is_validated = False
-            user.phone_number = data['new_phone_number']
-        if 'new_email' in data:
+            user.phone_number = data['phone_number']
+        if 'email' in data:
             user.email_is_validated = False
-            user.email = data['new_email']
-        if 'new_password' in data:
+            user.email = data['email']
+        if 'password' in data:
             user.last_password_hash = user.password
-            user.password = data['new_password']
-        if 'new_first_name' in data:
-            user.first_name = data['new_first_name']
-        if 'new_last_name' in data:
-            user.last_name = data['new_last_name']
-        if 'new_avatar_url' in data:
-            user.avatar_url = data['new_avatar_url']
-        if 'new_personal_account_number' in data:
-            user.personal_account_number = data['new_personal_account_number']
-        if 'new_card_number' in data:
-            user.card_number = data['new_card_number']
-        if 'new_national_card' in data:
-            user.national_card = data['new_national_card']
+            user.password = data['password']
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+        if 'avatar_url' in data:
+            user.avatar_url = data['avatar_url']
+        if 'personal_account_number' in data:
+            user.personal_account_number = data['personal_account_number']
+        if 'card_number' in data:
+            user.card_number = data['card_number']
+        if 'national_card' in data:
+            user.national_card = data['national_card']
         # ! <- update user
         # ! update db
         db.session.commit()
 
         # ! disconnect all device for update redis
-        tokens = db.session.query(Token).filter(Token.user_id == user.id)
-        for tkn in tokens:
-            redis_client.delete(tkn.token)
+        tokens = db.session.query(Token).filter(Token.user_id == user.id).all()
         db.session.query(Token).filter(Token.user_id == user.id).delete()
         db.session.commit()
+        return tokens
 
     def login(self, **kwargs):
         # ! extract data and user ->
@@ -181,7 +173,6 @@ class UserRepository(UserRepositoryBase):
         if not check_password_hash(user.password, data['password']):
             raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
                                 error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
-        # ! update token table and redis
         # todo add device info
         tkn = Token(user_id=user.id, device_info=user.to_dict)
         db.session.add(tkn)
@@ -189,6 +180,11 @@ class UserRepository(UserRepositoryBase):
         return tkn.token, user.to_dict
         # ! <- check input password with user.password(hashed)
 
+    def logout(self, **kwargs):
+        token = kwargs['token']
+        db.session.query(Token).filter(Token.token == token).delete()
+        db.session.commit()
+        return token
 # def logout(self, **kwargs):
 #     # ! extract data and user ->
 #     data = UserValidator.clean_data(self.login_roles, kwargs)
