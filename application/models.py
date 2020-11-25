@@ -3,51 +3,70 @@
 """
 from . import db
 import datetime
-from sqlalchemy.ext.hybrid import hybrid_property
+
+
+class Address(db.Model):
+    id = id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.foreign('user.id'), nullable=False)
+    district = db.Column(db.String(16))
+    city = db.Column(db.String(16))
+    state = db.Column(db.String(16))
+    long = db.Column(db.Float)
+    lat = db.Column(db.Float)
+    adres = db.Column(db.String(512))
+    post_code = db.Column(db.String(16))
+    detail = db.JSON()
 
 
 class Token(db.Model):
     def __init__(self, user_id: int, device_info: dict):
         # ! set _user_id
-        self._user_id = user_id
+        self.user_id = user_id
         # ! create and hashing and set _token ->
         from datetime import datetime
         now = datetime.now().time()
         t = '{}{}'.format(user_id, now)
         import hashlib
-        self._token = hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest()
+        self.token = hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest()
         # ! <- create and hashing and set _token
         # ! set _user_information
-        self._device_information = device_info
+        self.device_information = device_info
 
-    _id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    _user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    _token = db.Column(db.String(512), nullable=False, default='')
-    _device_information = db.JSON()
-
-    @property
-    def user_id(self):
-        return self.user_id
-
-    @hybrid_property
-    def token(self):
-        return self._token
-
-    @property
-    def device_information(self):
-        return self._device_information
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    token = db.Column(db.String(512), nullable=False, default='')
+    device_information = db.JSON()
 
 
 class User(db.Model):
+    def __init__(self, attributes=None):
+        if attributes is not None:
+            for key, value in attributes.items():
+                setattr(self, key, value)
+
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    role = db.Column(db.String(1), nullable=False, default='s')  # s := seller , t := storekeeper or a := admin
+    real_or_legal = db.Column(db.String(1), nullable=False, default='r')  # r := real or l := legal
     phone_number = db.Column(db.String(16), unique=True, nullable=False, default='0912-345-6789')
     phone_number_is_validated = db.Column(db.Boolean, default=False, nullable=False)
-    email = db.Column(db.String(128), unique=True, nullable=False, default='example@example.example')
-    email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     _password = db.Column(db.String(256), nullable=False, default='')
-    join_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        from werkzeug.security import generate_password_hash
+        self._password = generate_password_hash(value)
+
+    _join_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     # optional
+    email = db.Column(db.String(128), unique=True, default='example@example.example')
+    email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
+    company_name = db.Column(db.String(64))
+    company_information = db.JSON()
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
     avatar_url = db.Column(db.String(256))
@@ -56,17 +75,19 @@ class User(db.Model):
     national_card = db.Column(db.String(32))
     # extra
     last_password_hash = db.Column(db.String(127))
-    q1 = db.Column(db.String(127))
-    q2 = db.Column(db.String(127))
-    q3 = db.Column(db.String(127))
-    q4 = db.Column(db.String(127))
-    q5 = db.Column(db.String(127))
-    configurations = db.JSON()
 
-    def __init__(self, attributes=None):
-        if attributes is not None:
-            for key, value in attributes.items():
-                setattr(self, key, value)
+    _answer = db.Column(db.String(1024))
+
+    @property
+    def answer(self):
+        return self._password
+
+    @answer.setter
+    def answer(self, value):
+        from werkzeug.security import generate_password_hash
+        self._answer = generate_password_hash(value)
+
+    configurations = db.JSON()
 
     def __str__(self):
         return "ID:{},\n" \
@@ -81,22 +102,13 @@ class User(db.Model):
             format(self.id,
                    self.phone_number, self.phone_number_is_validated,
                    self.email, self.email_is_validated,
-                   str(self.join_date),
+                   str(self._join_date),
                    self.first_name, self.last_name,
                    self.avatar_url,
                    self.personal_account_number,
                    self.card_number,
                    self.national_card
                    )
-
-    @property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, value):
-        from werkzeug.security import generate_password_hash
-        self._password = generate_password_hash(value)
 
     @property
     def to_dict(self):
@@ -113,10 +125,17 @@ class User(db.Model):
 
 
 class ValidationCode(db.Model):
+    def __init__(self, user_id):
+        self.user_id = user_id
+        from random import randint
+        from datetime import datetime, timedelta
+        self.validation_code = randint(1000, 9999)
+        self.valid_until = datetime.now() + timedelta(minutes=10)
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, default=0)
-    validation_code = db.Column(db.String(10), default='')
-    valid_until = db.Column(db.DateTime, nullable=True)
+    user_id = db.Column(db.Integer)
+    validation_code = db.Column(db.String(10))
+    valid_until = db.Column(db.DateTime)
 
     @property
     def to_dict(self):
