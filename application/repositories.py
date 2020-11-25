@@ -52,6 +52,14 @@ class UserRepository(UserRepositoryBase):
             'user_name': 'req',
         }
 
+        self.page_recovery_roles = {
+            'user_name': 'req',
+            'send_code_to_phone_number': 'opt',
+            'send_code_to_email': 'opt',
+            'login_by_last_password': 'opt',
+            'login_by_answered_to_questions': 'opt',
+        }
+
     @staticmethod
     def _check_user_exist(user_name: str) -> User:
         from sqlalchemy import or_
@@ -152,12 +160,7 @@ class UserRepository(UserRepositoryBase):
         # ! <- update user
         # ! update db
         db.session.commit()
-
-        # ! disconnect all device for update redis
-        tokens = db.session.query(Token).filter(Token.user_id == user.id).all()
-        db.session.query(Token).filter(Token.user_id == user.id).delete()
-        db.session.commit()
-        return tokens
+        return user.to_dict
 
     def login(self, **kwargs):
         # ! extract data and user ->
@@ -185,21 +188,78 @@ class UserRepository(UserRepositoryBase):
         db.session.query(Token).filter(Token.token == token).delete()
         db.session.commit()
         return token
-# def logout(self, **kwargs):
-#     # ! extract data and user ->
-#     data = UserValidator.clean_data(self.login_roles, kwargs)
-#     user = UserRepository._check_user_exist(data['user_name'])
-#     # ! <- extract data and user
-#     # ! check for user exist
-#     if user is None:
-#         raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
-#                             error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
-#     # ! reset login_is_validate for logout
-#     user.login_is_validate = False
-#     # ! update db
-#     db.session.commit()
-#     return True
-#
+
+    @staticmethod
+    def _page_recovery_by_send_sms(user: User) -> dict:
+        import string
+        import random
+        res = ''.join(random.choices(string.ascii_uppercase +
+                                     string.digits, k=6))
+        res = str(res)
+        user.password = res
+        db.session.commit()
+        res = {'temporary_password': res}
+        return res
+
+    @staticmethod
+    def _page_recovery_by_send_email(user: User) -> dict:
+        import string
+        import random
+        res = ''.join(random.choices(string.ascii_uppercase +
+                                     string.digits, k=10))
+        res = str(res)
+        user.password = res
+        db.session.commit()
+        res = {'temporary_password': res}
+        return res
+
+    @staticmethod
+    def _page_recovery_by_last_password(user: User, data: dict):
+        from werkzeug.security import check_password_hash
+        if not check_password_hash(user.last_password_hash, data['last_password']):
+            raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
+                                error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
+        # todo add device info
+        tkn = Token(user_id=user.id, device_info=data['device_info'])
+        db.session.add(tkn)
+        db.session.commit()
+        res = {'token': tkn.token, 'user_info': user.to_dict}
+        return res
+
+    @staticmethod
+    def _page_recovery_by_answered_to_questions(user: User, data):
+        from werkzeug.security import check_password_hash
+        answer = data['ans_to_q_1'] + data['ans_to_q_2'] + data['ans_to_q_3'] + data['ans_to_q_4'] + data['ans_to_q_5']
+        if not check_password_hash(user.answer, answer):
+            raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
+                                error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
+        # todo add device info
+        tkn = Token(user_id=user.id, device_info=data['device_info'])
+        db.session.add(tkn)
+        db.session.commit()
+        res = {'token': tkn.token, 'user_info': user.to_dict}
+        return res
+
+    def page_recovery(self, **kwargs):
+        # ! extract data and user ->
+        data = UserValidator.clean_data(self.login_roles, kwargs)
+        user = UserRepository._check_user_exist(data['user_name'])
+        # ! <- extract data and user
+        # ! check for user exist
+        if user is None:
+            raise UserException(message=error_codes.USER_NOT_EXIST_MESSAGE,
+                                error_code=error_codes.USER_NOT_EXIST_CODE)
+        if data['send_code_to_phone_number'] is not None:
+            return self._page_recovery_by_send_sms(user)
+        if data['send_code_to_email'] is not None:
+            return self._page_recovery_by_send_email(user)
+        if data['login_by_last_password'] is not None:
+            return self._page_recovery_by_last_password(user, data)
+        if data['login_by_answered_to_questions'] is not None:
+            return self._page_recovery_by_answered_to_questions(user, data)
+        raise UserException(message=error_codes.FORGET_TYPE_ISـNOTـDEFINE_MESSAGE,
+                            error_code=error_codes.FORGET_TYPE_ISـNOTـDEFINE_CODE)
+
 # def getUser(self, **kwargs):
 #     # ! extract data and user ->
 #     data = UserValidator.clean_data(self.login_roles, kwargs)
