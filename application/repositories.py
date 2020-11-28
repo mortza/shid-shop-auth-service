@@ -218,7 +218,7 @@ class UserRepository(UserRepositoryBase):
             raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
                                 error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
         # todo add device info
-        tkn = Token(user_id=user.id, device_info={'01': '01',})
+        tkn = Token(user_id=user.id, device_info={'01': '01', })
         db.session.add(tkn)
         db.session.commit()
         db.create_all()
@@ -232,7 +232,7 @@ class UserRepository(UserRepositoryBase):
             raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
                                 error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
         # todo add device info
-        tkn = Token(user_id=user.id, device_info={'02': '02',})
+        tkn = Token(user_id=user.id, device_info={'02': '02', })
         db.session.add(tkn)
         db.session.commit()
         res = {'token': tkn.token, 'user_info': user.to_dict}
@@ -258,24 +258,27 @@ class UserRepository(UserRepositoryBase):
         raise UserException(message=error_codes.FORGET_TYPE_ISـNOTـDEFINE_MESSAGE,
                             error_code=error_codes.FORGET_TYPE_ISـNOTـDEFINE_CODE)
 
-# def getUser(self, **kwargs):
-#     # ! extract data and user ->
-#     data = UserValidator.clean_data(self.login_roles, kwargs)
-#     user = UserRepository._check_user_exist(data['user_name'])
-#     # ! <- extract data and user
-#     # ! check for user exist
-#     if user is None:
-#         raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
-#                             error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
-#     # ! check user is login
-#     if user.login_is_validate:
-#         return user.to_dict
-#     return {}
+    # def getUser(self, **kwargs):
+    #     # ! extract data and user ->
+    #     data = UserValidator.clean_data(self.login_roles, kwargs)
+    #     user = UserRepository._check_user_exist(data['user_name'])
+    #     # ! <- extract data and user
+    #     # ! check for user exist
+    #     if user is None:
+    #         raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
+    #                             error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
+    #     # ! check user is login
+    #     if user.login_is_validate:
+    #         return user.to_dict
+    #     return {}
 
-# def delete(self, **kwargs):
-#     [user, ] = self._current_user(kwargs)
-#     if user.login_is_validate:
-#         db.session.delete(user)
-#         db.session.commit()
-#     raise UserException(message=error_codes.USER_IS_NOT_LOGIN_MESSAGE,
-#                         error_code=error_codes.USER_IS_NOT_LOGIN_CODE)
+    def delete(self, **kwargs):
+        token = kwargs['token']
+        tkn = db.session.query(Token).filter(Token.token == token).first()
+        tkn_uid = tkn.user_id
+        tkns = db.session.query(Token).filter(Token.user_id == tkn_uid).all()
+        u = db.session.query(User).filter(User.id == tkn_uid).first()
+        db.session.delete(u)
+        db.session.query(Token).filter(Token.user_id == tkn_uid).delete()
+        db.session.commit()
+        return tkns

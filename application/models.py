@@ -88,6 +88,8 @@ class User(db.Model):
         self._answer = generate_password_hash(value)
 
     configurations = db.JSON()
+    addresses = db.relationship('Address', backref='user', cascade="all, delete", lazy=True)
+    tokens = db.relationship('Token', backref='user', cascade="all, delete", lazy=True)
 
     def __str__(self):
         return "ID:{},\n" \

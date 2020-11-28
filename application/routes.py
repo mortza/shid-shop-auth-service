@@ -46,11 +46,7 @@ def register():
         'card_number': 'opt',
         'national_card': 'opt',
         'last_password': 'opt',
-        'q1': 'opt',
-        'q2': 'opt',
-        'q3': 'opt',
-        'q4': 'opt',
-        'q5': 'opt',
+        'answers': 'opt',
         'configurations': 'opt',
     }
     :return:
@@ -224,15 +220,31 @@ def page_recovery():
                               }, 500))
 
 
-@app.route('/user/delete', methods=['POST'])
+@app.route('/delete-account', methods=['POST'], endpoint='delete')
+@token_is_exist
 def delete():
-    """
-    request.args -> {
-            'user_name'('phone_number' or 'email') : 'opt'
-            }
-    :return:
-    """
-    pass
+    try:
+        repo = UserRepository()
+        tokens = repo.delete(**request.args)
+        for token in tokens:
+            redis_client.delete(token.token)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': 'delete account successfully.'
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
 
 
 @app.route('/register/validate-phone', methods=['POST'])
