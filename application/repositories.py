@@ -1,6 +1,6 @@
 from repository.users import UserRepositoryBase
 from application.models import User, Token
-from application import db, redis_client
+from application import db
 from repository import error_codes
 
 from application.validators import UserValidator
@@ -21,11 +21,7 @@ class UserRepository(UserRepositoryBase):
             'card_number': 'opt',
             'national_card': 'opt',
             'last_password': 'opt',
-            'q1': 'opt',
-            'q2': 'opt',
-            'q3': 'opt',
-            'q4': 'opt',
-            'q5': 'opt',
+            'answer': 'opt',
             'configurations': 'opt',
         }
         # ! define roles. data extraction for updating
@@ -51,13 +47,15 @@ class UserRepository(UserRepositoryBase):
         self.logout_roles = {
             'user_name': 'req',
         }
-
+        #
         self.page_recovery_roles = {
             'user_name': 'req',
             'send_code_to_phone_number': 'opt',
             'send_code_to_email': 'opt',
             'login_by_last_password': 'opt',
+            'last_password': 'opt',
             'login_by_answered_to_questions': 'opt',
+            'answers': 'opt'
         }
 
     @staticmethod
@@ -195,7 +193,7 @@ class UserRepository(UserRepositoryBase):
         import random
         res = ''.join(random.choices(string.ascii_uppercase +
                                      string.digits, k=6))
-        res = str(res)
+        user.last_password_hash = user.password
         user.password = res
         db.session.commit()
         res = {'temporary_password': res}
@@ -207,7 +205,7 @@ class UserRepository(UserRepositoryBase):
         import random
         res = ''.join(random.choices(string.ascii_uppercase +
                                      string.digits, k=10))
-        res = str(res)
+        user.last_password_hash = user.password
         user.password = res
         db.session.commit()
         res = {'temporary_password': res}
@@ -220,21 +218,21 @@ class UserRepository(UserRepositoryBase):
             raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
                                 error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
         # todo add device info
-        tkn = Token(user_id=user.id, device_info=data['device_info'])
+        tkn = Token(user_id=user.id, device_info={'01': '01',})
         db.session.add(tkn)
         db.session.commit()
+        db.create_all()
         res = {'token': tkn.token, 'user_info': user.to_dict}
         return res
 
     @staticmethod
     def _page_recovery_by_answered_to_questions(user: User, data):
         from werkzeug.security import check_password_hash
-        answer = data['ans_to_q_1'] + data['ans_to_q_2'] + data['ans_to_q_3'] + data['ans_to_q_4'] + data['ans_to_q_5']
-        if not check_password_hash(user.answer, answer):
+        if not check_password_hash(user.answer, data['answers']):
             raise UserException(message=error_codes.WRONG_PASSWORD_ENTERED_MESSAGE,
                                 error_code=error_codes.WRONG_PASSWORD_ENTERED_CODE)
         # todo add device info
-        tkn = Token(user_id=user.id, device_info=data['device_info'])
+        tkn = Token(user_id=user.id, device_info={'02': '02',})
         db.session.add(tkn)
         db.session.commit()
         res = {'token': tkn.token, 'user_info': user.to_dict}
@@ -242,20 +240,20 @@ class UserRepository(UserRepositoryBase):
 
     def page_recovery(self, **kwargs):
         # ! extract data and user ->
-        data = UserValidator.clean_data(self.login_roles, kwargs)
+        data = UserValidator.clean_data(self.page_recovery_roles, kwargs)
         user = UserRepository._check_user_exist(data['user_name'])
         # ! <- extract data and user
         # ! check for user exist
         if user is None:
             raise UserException(message=error_codes.USER_NOT_EXIST_MESSAGE,
                                 error_code=error_codes.USER_NOT_EXIST_CODE)
-        if data['send_code_to_phone_number'] is not None:
+        if 'send_code_to_phone_number' in data:
             return self._page_recovery_by_send_sms(user)
-        if data['send_code_to_email'] is not None:
+        if 'send_code_to_email' in data:
             return self._page_recovery_by_send_email(user)
-        if data['login_by_last_password'] is not None:
+        if 'login_by_last_password' in data:
             return self._page_recovery_by_last_password(user, data)
-        if data['login_by_answered_to_questions'] is not None:
+        if 'login_by_answered_to_questions' in data:
             return self._page_recovery_by_answered_to_questions(user, data)
         raise UserException(message=error_codes.FORGET_TYPE_ISـNOTـDEFINE_MESSAGE,
                             error_code=error_codes.FORGET_TYPE_ISـNOTـDEFINE_CODE)

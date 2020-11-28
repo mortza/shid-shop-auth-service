@@ -133,7 +133,7 @@ def logout():
                               }, 500))
 
 
-@app.route('/user/update', methods=['GET'], endpoint='update')
+@app.route('/user/update', methods=['POST'], endpoint='update')
 @token_is_exist
 def update():
     """
@@ -175,7 +175,7 @@ def update():
                               }, 500))
 
 
-@app.route('/forget', methods=['GET'], endpoint='update')
+@app.route('/forget', methods=['POST'])
 def page_recovery():
     """
     request.args -> {
@@ -190,23 +190,24 @@ def page_recovery():
     try:
         repo = UserRepository()
         res = repo.page_recovery(**request.args)
-        if 'validation_code' in res:
+        if 'temporary_password' in res:
             tp = res['temporary_password']
             return make_response(({
                                       'status': 'ok',
                                       'code': 1,
-                                      'message': 'Update completed successfully.',
+                                      'message': 'send code.',
                                       'information': tp
                                   }, 200))
         if 'token' in res:
             tkn = res['token']
             uinfo = res['user_info']
             redis_client.set(tkn, json.dumps(uinfo))
+            print('*****************************&&&&&&&&&&')
             return make_response(({
                                       'status': 'ok',
                                       'code': 1,
-                                      'message': 'Update completed successfully.',
-                                      'information': uinfo
+                                      'message': 'login',
+                                      'information': res
                                   }, 200))
 
     except UserException as ex:

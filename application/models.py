@@ -7,7 +7,7 @@ import datetime
 
 class Address(db.Model):
     id = id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.foreign('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     district = db.Column(db.String(16))
     city = db.Column(db.String(16))
     state = db.Column(db.String(16))
@@ -80,7 +80,7 @@ class User(db.Model):
 
     @property
     def answer(self):
-        return self._password
+        return self._answer
 
     @answer.setter
     def answer(self, value):
@@ -121,6 +121,7 @@ class User(db.Model):
             'password': self.password,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            'answer': self.answer,
         }
 
 
