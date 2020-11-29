@@ -1,5 +1,5 @@
 from repository.users import UserRepositoryBase
-from application.models import User, Token
+from application.models import User, Token, VCode, Address
 from application import db
 from repository import error_codes
 
@@ -57,6 +57,16 @@ class UserRepository(UserRepositoryBase):
             'login_by_answered_to_questions': 'opt',
             'answers': 'opt'
         }
+        self.address_roles = {
+            'district': 'opt',
+            'city': 'opt',
+            'state': 'opt',
+            'long': 'opt',
+            'lat': 'opt',
+            'address_text': 'opt',
+            'post_code': 'opt',
+            'detail': 'opt',
+        }
 
     @staticmethod
     def _check_user_exist(user_name: str) -> User:
@@ -65,44 +75,6 @@ class UserRepository(UserRepositoryBase):
             filter(or_(User.email == user_name,
                        User.phone_number == user_name)). \
             first()
-
-    # @staticmethod
-    # def _make_phone_number_validation(user):
-    #     from random import randint
-    #     from datetime import datetime, timedelta
-    #
-    #     v = ValidationCode()
-    #     v.user_id = user.id
-    #     v.validation_code = randint(1000, 9999)
-    #     v.valid_until = datetime.now() + timedelta(minutes=10)
-    #     db.session.add(v)
-    #     db.session.commit()
-    #     db.create_all()
-    #     # send SMS
-    #     # Your activation Code is: v.validation_code
-    #
-    # @staticmethod
-    # def _make_email_validation(user):
-    #     from random import randint
-    #     from datetime import datetime, timedelta
-    #
-    #     v = ValidationCode()
-    #     v.user_id = user.id
-    #     v.validation_code = randint(1000, 9999)
-    #     v.valid_until = datetime.now() + timedelta(minutes=10)
-    #     db.session.add(v)
-    #     db.session.commit()
-    #     db.create_all()
-    #     # send SMS
-    #     # Your activation Code is: v.validation_code
-    #
-    # def validate_phone_number(self, **kwargs):
-    #     """
-    #
-    #     :param kwargs:
-    #     :return:
-    #     """
-    #     pass
 
     def register(self, **kwargs):
         # ! extract data ->
@@ -258,20 +230,6 @@ class UserRepository(UserRepositoryBase):
         raise UserException(message=error_codes.FORGET_TYPE_ISـNOTـDEFINE_MESSAGE,
                             error_code=error_codes.FORGET_TYPE_ISـNOTـDEFINE_CODE)
 
-    # def getUser(self, **kwargs):
-    #     # ! extract data and user ->
-    #     data = UserValidator.clean_data(self.login_roles, kwargs)
-    #     user = UserRepository._check_user_exist(data['user_name'])
-    #     # ! <- extract data and user
-    #     # ! check for user exist
-    #     if user is None:
-    #         raise UserException(message=error_codes.USER_ALREADY_NOT_EXIST_MESSAGE,
-    #                             error_code=error_codes.USER_ALREADY_NOT_EXIST_CODE)
-    #     # ! check user is login
-    #     if user.login_is_validate:
-    #         return user.to_dict
-    #     return {}
-
     def delete(self, **kwargs):
         token = kwargs['token']
         tkn = db.session.query(Token).filter(Token.token == token).first()
@@ -282,3 +240,52 @@ class UserRepository(UserRepositoryBase):
         db.session.query(Token).filter(Token.user_id == tkn_uid).delete()
         db.session.commit()
         return tkns
+
+    def create_verify_code(self, **kwargs):
+        token = kwargs['token']
+        token = db.session.query(Token).filter(Token.token == token).first()
+        v_code = VCode(token.user_id)
+        db.session.add(v_code)
+        db.session.commit()
+        return v_code.to_dict
+
+    def check_code_ph(self, **kwargs):
+        tkn = kwargs['token']
+        vcode = kwargs['vcode']
+        tkn = db.session.query(Token).filter(Token.token == tkn).first()
+        usr = db.session.query(User).filter(User.id == tkn.user_id).first()
+        import datetime
+        d = datetime.datetime.now()
+        for vc in usr.v_codes:
+            if vc.v_code_ph == vcode and d < vc.validity_date:
+                usr.phone_number_is_validated = True
+                db.session.query(VCode).filter(VCode.id == vc.id).delete()
+                db.session.commit()
+                return True
+        return False
+
+    def check_code_e(self, **kwargs):
+        tkn = kwargs['token']
+        vcode = kwargs['vcode']
+        tkn = db.session.query(Token).filter(Token.token == tkn).first()
+        usr = db.session.query(User).filter(User.id == tkn.user_id).first()
+        import datetime
+        d = datetime.datetime.now()
+        for vc in usr.v_codes:
+            if vc.v_code_e == vcode and d < vc.validity_date:
+                usr.email_is_validated = True
+                db.session.query(VCode).filter(VCode.id == vc.id).delete()
+                db.session.commit()
+                return True
+        return False
+
+    def add_address(self, **kwargs):
+        # ! extract data ->
+        data = UserValidator.clean_data(self.address_roles, kwargs)
+        token = kwargs['token']
+        token = db.session.query(Token).filter(Token.token == token).first()
+        data['user_id'] = token.user_id
+        address = Address(data)
+        db.session.add(address)
+        db.session.commit()
+        return address.to_dict

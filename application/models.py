@@ -30,7 +30,7 @@ class Address(db.Model):
             'lat', self.lat,
             'address-text', self.address_text,
             'post-code', self.post_code,
-            'detail', self.detail,
+            # 'detail', self.detail,
         }
 
     # @property
@@ -84,7 +84,7 @@ class Token(db.Model):
     def to_dict(self):
         return {
             'token': self.token,
-            'device-information': self.device_information,
+            # 'device-information': self.device_information,
         }
 
     # @property
@@ -107,18 +107,21 @@ class VCode(db.Model):
         from random import randint
         from datetime import datetime, timedelta
 
-        self.v_code = randint(1000, 9999)
+        self.v_code_ph = randint(1000, 9999)
+        self.v_code_e = randint(10000, 99999)
         self.validity_date = datetime.now() + timedelta(minutes=10)
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    v_code = db.Column(db.String(10))
+    v_code_ph = db.Column(db.String(4))
+    v_code_e = db.Column(db.String(6))
     validity_date = db.Column(db.DateTime)
 
     @property
     def to_dict(self):
         return {
-            'verify-code': self.v_code,
+            'verify-code-for-phone-number': self.v_code_ph,
+            'verify-code-for-email': self.v_code_e,
             'validity-date': self.validity_date,
         }
 
@@ -126,10 +129,12 @@ class VCode(db.Model):
     # def __str__(self):
     #     return "ID:{},\n" \
     #            "User ID:{},\n" \
-    #            "Code {} is valid until date {}.". \
+    #            "Phone Number Verify Code {} is valid until date {}.\n" \
+    #            "Email Verify Code {} is valid until date {}.". \
     #         format(self.id,
     #                self.user_id,
-    #                self.v_code, self.validity_date
+    #                self.v_code_ph, self.validity_date,
+    #                self.v_code_e, self.validity_date
     #                )
 
 
@@ -139,7 +144,8 @@ class User(db.Model):
         if attributes is not None:
             for key, value in attributes.items():
                 setattr(self, key, value)
-        self._join_date = datetime.datetime.utcnow
+        self._join_date = datetime.datetime.utcnow()
+        self.last_password_hash = self.password
 
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -197,18 +203,18 @@ class User(db.Model):
             'real-or-legal': self.real_or_legal,
             'phone-number': self.phone_number,
             'phone-number-is-validated': self.phone_number_is_validated,
-            'join-date': self._join_date,
+            'join-date': str(self._join_date),
             'email': self.email,
             'email-is-validated': self.email_is_validated,
             'company-name': self.company_name,
-            'company-information': self.company_information,
+            # 'company-information': self.company_information,
             'first-name': self.first_name,
             'last-name': self.last_name,
             'avatar-url': self.avatar_url,
             'personal-account-number': self.personal_account_number,
             'card-number': self.card_number,
             'national-card': self.national_card,
-            'configurations': self.configurations
+            # 'configurations': self.configurations
         }
 
     # @property

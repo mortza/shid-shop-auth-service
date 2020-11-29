@@ -247,6 +247,138 @@ def delete():
                               }, 500))
 
 
-@app.route('/register/validate-phone', methods=['POST'])
-def validate_phone_number():
-    pass
+@app.route('/register/verification-code-for-phone',
+           methods=['POST'],
+           endpoint='send_vcode_ph')
+@token_is_exist
+def send_vcode_ph():
+    try:
+        repo = UserRepository()
+        vcode = repo.create_verify_code(**request.args)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': 'send vcode for phone number.',
+                                  'informations': vcode
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
+
+
+@app.route('/register/verification-code-for-email',
+           methods=['POST'],
+           endpoint='send_vcode_e')
+@token_is_exist
+def send_vcode_e():
+    try:
+        repo = UserRepository()
+        vcode = repo.create_verify_code(**request.args)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': 'send vcode for email.',
+                                  'informations': vcode
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
+
+
+@app.route('/register/verify-phone-verification-code',
+           methods=['POST'],
+           endpoint='confirm_code_ph')
+@token_is_exist
+def confirm_code_ph():
+    try:
+        repo = UserRepository()
+        res = repo.check_code_ph(**request.args)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': 'phone number vcode is {}.'.format(str(res)),
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
+
+
+@app.route('/register/verify-email-verification-code',
+           methods=['POST'],
+           endpoint='confirm_code_e')
+@token_is_exist
+def confirm_code_e():
+    try:
+        repo = UserRepository()
+        res = repo.check_code_e(**request.args)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': 'email vcode is {}.'.format(str(res)),
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))
+
+
+@app.route('/user/add-address',
+           methods=['POST'],
+           endpoint='add_address')
+@token_is_exist
+def add_address():
+    try:
+        repo = UserRepository()
+        res = repo.add_address(**request.args)
+        return make_response(({
+                                  'status': 'ok',
+                                  'code': error_codes.OK_STATUS,
+                                  'message': 'Address added.',
+                              }, 200))
+    except UserException as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': ex.error_code,
+                                  'message': ex.message
+                              }, 500))
+    except Exception as ex:
+        return make_response(({
+                                  'status': 'error',
+                                  'code': '-1',
+                                  'message': str(ex)
+                              }, 500))

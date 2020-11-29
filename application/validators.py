@@ -14,5 +14,8 @@ class UserValidator:
             if key in data:
                 cd[key] = data[key]
         if cd['user_name'] is None:
-            cd['user_name'] = cd['phone_number']
+            if 'phone_number' in cd:
+                cd['user_name'] = cd['phone_number']
+            elif 'email' in cd:
+                cd['user_name'] = cd['email']
         return cd
