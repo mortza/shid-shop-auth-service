@@ -1,21 +1,61 @@
-"""
-    Data models.
-"""
 from . import db
 import datetime
 
 
 class Address(db.Model):
-    id = id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    def __init__(self, attributes=None):
+        # ! set all input attr
+        if attributes is not None:
+            for key, value in attributes.items():
+                setattr(self, key, value)
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     district = db.Column(db.String(16))
     city = db.Column(db.String(16))
     state = db.Column(db.String(16))
     long = db.Column(db.Float)
     lat = db.Column(db.Float)
-    adres = db.Column(db.String(512))
+    address_text = db.Column(db.String(1024))
     post_code = db.Column(db.String(16))
     detail = db.JSON()
+
+    @property
+    def to_dict(self):
+        return {
+            'district', self.district,
+            'city', self.city,
+            'state', self.state,
+            'long', self.long,
+            'lat', self.lat,
+            'address-text', self.address_text,
+            'post-code', self.post_code,
+            'detail', self.detail,
+        }
+
+    # @property
+    # def __str__(self):
+    #     return "ID: {},\n" \
+    #            "User ID: {},\n" \
+    #            "District: {},\n" \
+    #            "City: {},\n" \
+    #            "State: {},\n" \
+    #            "Long: {},\n" \
+    #            "Lat: {},\n" \
+    #            "Address Text: {},\n" \
+    #            "Post Code: {},\n" \
+    #            "Detail: {},\n". \
+    #         format(self.id,
+    #                self.user_id,
+    #                self.district,
+    #                self.city,
+    #                self.state,
+    #                self.long,
+    #                self.lat,
+    #                self.address_text,
+    #                self.post_code,
+    #                self.detail
+    #                )
 
 
 class Token(db.Model):
@@ -23,9 +63,12 @@ class Token(db.Model):
         # ! set _user_id
         self.user_id = user_id
         # ! create and hashing and set _token ->
+        import string
+        import random
+        s = ''.join(random.choices(string.ascii_uppercase + string.digits, k=50))
         from datetime import datetime
         now = datetime.now().time()
-        t = '{}{}'.format(user_id, now)
+        t = '{}{}{}'.format(user_id, now, s)
         import hashlib
         self.token = hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest()
         # ! <- create and hashing and set _token
@@ -37,18 +80,72 @@ class Token(db.Model):
     token = db.Column(db.String(512), nullable=False, default='')
     device_information = db.JSON()
 
+    @property
+    def to_dict(self):
+        return {
+            'token': self.token,
+            'device-information': self.device_information,
+        }
+
+    # @property
+    # def __str__(self):
+    #     return "ID:{},\n" \
+    #            "User ID:{},\n" \
+    #            "Token:{},\n" \
+    #            "Device Information.". \
+    #         format(self.id,
+    #                self.user_id,
+    #                self.token,
+    #                self.device_information
+    #                )
+
+
+class VCode(db.Model):
+    def __init__(self, user_id):
+        self.user_id = user_id
+
+        from random import randint
+        from datetime import datetime, timedelta
+
+        self.v_code = randint(1000, 9999)
+        self.validity_date = datetime.now() + timedelta(minutes=10)
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    v_code = db.Column(db.String(10))
+    validity_date = db.Column(db.DateTime)
+
+    @property
+    def to_dict(self):
+        return {
+            'verify-code': self.v_code,
+            'validity-date': self.validity_date,
+        }
+
+    # @property
+    # def __str__(self):
+    #     return "ID:{},\n" \
+    #            "User ID:{},\n" \
+    #            "Code {} is valid until date {}.". \
+    #         format(self.id,
+    #                self.user_id,
+    #                self.v_code, self.validity_date
+    #                )
+
 
 class User(db.Model):
+    # ! set all input attr
     def __init__(self, attributes=None):
         if attributes is not None:
             for key, value in attributes.items():
                 setattr(self, key, value)
+        self._join_date = datetime.datetime.utcnow
 
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    role = db.Column(db.String(1), nullable=False, default='s')  # s := seller , t := storekeeper or a := admin
-    real_or_legal = db.Column(db.String(1), nullable=False, default='r')  # r := real or l := legal
-    phone_number = db.Column(db.String(16), unique=True, nullable=False, default='0912-345-6789')
+    role = db.Column(db.String(16), nullable=False, default='')
+    real_or_legal = db.Column(db.String(16), nullable=False, default='')
+    phone_number = db.Column(db.String(16), unique=True, nullable=False, default='09123456789')
     phone_number_is_validated = db.Column(db.Boolean, default=False, nullable=False)
     _password = db.Column(db.String(256), nullable=False, default='')
 
@@ -61,7 +158,8 @@ class User(db.Model):
         from werkzeug.security import generate_password_hash
         self._password = generate_password_hash(value)
 
-    _join_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    _join_date = db.Column(db.DateTime)
+
     # optional
     email = db.Column(db.String(128), unique=True, default='example@example.example')
     email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
@@ -73,9 +171,9 @@ class User(db.Model):
     personal_account_number = db.Column(db.String(64))
     card_number = db.Column(db.String(32))
     national_card = db.Column(db.String(32))
+
     # extra
     last_password_hash = db.Column(db.String(127))
-
     _answer = db.Column(db.String(1024))
 
     @property
@@ -90,61 +188,69 @@ class User(db.Model):
     configurations = db.JSON()
     addresses = db.relationship('Address', backref='user', cascade="all, delete", lazy=True)
     tokens = db.relationship('Token', backref='user', cascade="all, delete", lazy=True)
-
-    def __str__(self):
-        return "ID:{},\n" \
-               "Phone Number:{}-> is validated:{},\n" \
-               "Email Address:{}->is validated:{},\n" \
-               "Join Date:{},\n" \
-               "Name:{} {},\n" \
-               "Avatar:{},\n" \
-               "Personal Account Number:{},\n" \
-               "Card Number:{},\n" \
-               "National Card:{}\n". \
-            format(self.id,
-                   self.phone_number, self.phone_number_is_validated,
-                   self.email, self.email_is_validated,
-                   str(self._join_date),
-                   self.first_name, self.last_name,
-                   self.avatar_url,
-                   self.personal_account_number,
-                   self.card_number,
-                   self.national_card
-                   )
+    v_codes = db.relationship('VCode', backref='user', cascade="all, delete", lazy=True)
 
     @property
     def to_dict(self):
         return {
-            'id': self.id,
-            'phone_number': self.phone_number,
-            'phone_is_valid': self.phone_number_is_validated,
+            'role': self.role,
+            'real-or-legal': self.real_or_legal,
+            'phone-number': self.phone_number,
+            'phone-number-is-validated': self.phone_number_is_validated,
+            'join-date': self._join_date,
             'email': self.email,
-            'email_is_validated': self.email_is_validated,
-            'password': self.password,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'answer': self.answer,
+            'email-is-validated': self.email_is_validated,
+            'company-name': self.company_name,
+            'company-information': self.company_information,
+            'first-name': self.first_name,
+            'last-name': self.last_name,
+            'avatar-url': self.avatar_url,
+            'personal-account-number': self.personal_account_number,
+            'card-number': self.card_number,
+            'national-card': self.national_card,
+            'configurations': self.configurations
         }
 
-
-class ValidationCode(db.Model):
-    def __init__(self, user_id):
-        self.user_id = user_id
-        from random import randint
-        from datetime import datetime, timedelta
-        self.validation_code = randint(1000, 9999)
-        self.valid_until = datetime.now() + timedelta(minutes=10)
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer)
-    validation_code = db.Column(db.String(10))
-    valid_until = db.Column(db.DateTime)
-
-    @property
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'validation_code': self.validation_code,
-            'valid_until': self.valid_until,
-        }
+    # @property
+    # def __str__(self):
+    #     return "ID:{},\n" \
+    #            "Role: {},\n" \
+    #            "Real Or Legal: {},\n" \
+    #            "Phone Number:{}-> is validated:{},\n" \
+    #            "Password: {},\n" \
+    #            "Join Date:{},\n" \
+    #            "Email Address:{}->is validated:{},\n" \
+    #            "Company Name:{},\n" \
+    #            "Company information: {},\n" \
+    #            "Name:{} {},\n" \
+    #            "Avatar URL:{},\n" \
+    #            "Personal Account Number:{},\n" \
+    #            "Card Number:{},\n" \
+    #            "National Card:{},\n" \
+    #            "Last Password: {},\n" \
+    #            "Answers: {},\n" \
+    #            "Configurations: {},\n" \
+    #            "Addresses: {},\n" \
+    #            "Tokens: {},\n" \
+    #            "VCodes: {},\n". \
+    #         format(self.id,
+    #                self.role,
+    #                self.real_or_legal,
+    #                self.phone_number, self.phone_number_is_validated,
+    #                self.password,
+    #                self._join_date,
+    #                self.email, self.email_is_validated,
+    #                self.company_name,
+    #                self.company_information,
+    #                self.first_name, self.last_name,
+    #                self.avatar_url,
+    #                self.personal_account_number,
+    #                self.card_number,
+    #                self.national_card,
+    #                self.last_password_hash,
+    #                self.answer,
+    #                self.configurations,
+    #                self.addresses,
+    #                self.tokens,
+    #                self.v_codes
+    #                )
