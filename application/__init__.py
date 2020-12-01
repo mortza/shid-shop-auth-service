@@ -6,6 +6,10 @@ from dotenv import load_dotenv
 import os
 from flask_redis import FlaskRedis
 
+from repository.acceptabledata import AcceptableData
+
+adata = AcceptableData()
+
 load_dotenv()
 app = Flask(__name__)
 redis_client = FlaskRedis(app)
