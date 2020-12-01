@@ -5,307 +5,488 @@ from repository import error_codes
 class AcceptableData:
     # input rules
     # signup
-    input_singup_rules = {
-        'role': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    signup_rules = {
+        'input': {
+            'role': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'max_length': 11,
+                'min_length': 11,
+                'type': 'snum'
+            },
+            'password': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': 8,
+                'type': 'str'
+            },
+            'email': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'email'
+            },
+            'user_info': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+            'company_info': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'answers': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+            'configurations': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
         },
-        'real_or_legal': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
-        },
-        'phone_number': {
-            'nullable': False,
-            'max_length': 11,
-            'min_length': 11,
-            'type': 'snum'
-        },
-        'password': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': 8,
-            'type': 'str'
-        },
-        'email': {
-            'nullable': True,
-            'max_length': None,
-            'min_length': None,
-            'type': 'email'
-        },
-        'user_info': {
-            'nullable': True,
-            'max_length': None,
-            'min_length': None,
-            'type': 'json'
-        },
-        'company_info': {
-            'nullable': True,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
-        },
-        'answers': {
-            'nullable': True,
-            'max_length': None,
-            'min_length': None,
-            'type': 'json'
-        },
-        'configurations': {
-            'nullable': True,
-            'max_length': None,
-            'min_length': None,
-            'type': 'json'
-        },
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_info': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_info': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            }, }
     }
     # login
-    input_login_rules = {
-        'user_name': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    login_rules = {
+        'input': {
+            'user_name': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'password': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': 8,
+                'type': 'str'
+            },
         },
-        'password': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': 8,
-            'type': 'str'
-        },
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_info': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_info': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+        }
     }
     # logout
-    input_logout_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    logout_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
         },
+        'output': {}
     }
     # update
-    input_phone_number_update_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    phone_number_update_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'max_length': 11,
+                'min_length': 11,
+                'type': 'snum'
+            },
         },
-        'phone_number': {
-            'nullable': False,
-            'max_length': 11,
-            'min_length': 11,
-            'type': 'snum'
-        },
+        'output': {}
     }
-    input_password_update_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    password_update_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'password': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': 8,
+                'type': 'str'
+            },
         },
-        'password': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': 8,
-            'type': 'str'
-        },
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_info': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_info': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+        }
     }
-    input_email_update_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    email_update_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'email': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'email'
+            },
         },
-        'email': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'email'
-        },
+        'output': {}
     }
-    input_user_info_update_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    user_info_update_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'user_info': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
         },
-        'user_info': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'json'
-        },
+        'output': {}
     }
-    input_company_info_update_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    company_info_update_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_info': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
         },
-        'company_info': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
-        },
+        'output': {}
     }
-    input_configurations_update_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    configurations_update_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
         },
-        'configurations': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'json'
-        },
+        'output': {}
     }
     # forget password
-    input_account_recovery_by_send_sms_rules = {
-        'phone_number': {
-            'nullable': False,
-            'max_length': 11,
-            'min_length': 11,
-            'type': 'snum'
+    recovery_by_sms_rules = {
+        'input': {
+            'phone_number': {
+                'nullable': False,
+                'max_length': 11,
+                'min_length': 11,
+                'type': 'snum'
+            },
         },
+        'output': {}
     }
-    input_account_recovery_by_send_email_rules = {
-        'email': {
-            'nullable': True,
-            'max_length': None,
-            'min_length': None,
-            'type': 'email'
+    recovery_by_email_rules = {
+        'input': {
+            'email': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'email'
+            },
         },
+        'output': {}
     }
-    input_account_recovery_by_last_password_rules = {
-        'user_name': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    recovery_by_last_password_rules = {
+        'input': {
+            'user_name': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_password': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': 8,
+                'type': 'str'
+            },
         },
-        'last_password': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': 8,
-            'type': 'str'
-        },
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_info': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_info': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+        }
     }
-    input_account_recovery_by_answers_rules = {
-        'user_name': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    recovery_by_answers_rules = {
+        'input': {
+            'user_name': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'answers': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': 8,
+                'type': 'json'
+            },
         },
-        'answers': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': 8,
-            'type': 'json'
-        },
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_info': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_info': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+        }
     }
     # delete account
-    input_delete_account_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    delete_account_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
         },
+        'output': {}
     }
     # generate and send vcode
-    input_generate_and_send_vcode_to_activate_phone_number_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    send_vcode_phone_number_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
         },
+        'output': {}
     }
-    input_generate_and_email_vcode_to_activate_email_address_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    email_vcode_email_address_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
         },
+        'output': {}
     }
     # confirm the received vcode
-    input_confirm_the_received_vcode_to_activate_the_email_address_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    confirm_vcode_email_address_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'vcode': {
+                'nullable': False,
+                'max_length': 5,
+                'min_length': 5,
+                'type': 'snum'
+            }
         },
-        'vcode': {
-            'nullable': False,
-            'max_length': 5,
-            'min_length': 5,
-            'type': 'snum'
-        }
+        'output': {}
     }
-    input_confirm_the_received_vcode_to_activate_the_phone_number_rules = {
-        'token': {
-            'nullable': False,
-            'max_length': None,
-            'min_length': None,
-            'type': 'str'
+    confirm_vcode_phone_number_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'vcode': {
+                'nullable': False,
+                'max_length': 4,
+                'min_length': 4,
+                'type': 'snum'
+            }
         },
-        'vcode': {
-            'nullable': False,
-            'max_length': 4,
-            'min_length': 4,
-            'type': 'snum'
-        }
-    }
-
-    # output rules
-    # all data
-    output_return_user_all_data = {
-        'token': {
-            'nullable': False,
-            'type': 'str'
-        },
-        'role': {
-            'nullable': False,
-            'type': 'str'
-        },
-        'real_or_legal': {
-            'nullable': False,
-            'type': 'str'
-        },
-        'phone_number': {
-            'nullable': False,
-            'type': 'snum'
-        },
-        'email': {
-            'nullable': True,
-            'type': 'email'
-        },
-        'user_info': {
-            'nullable': True,
-            'type': 'json'
-        },
-        'company_info': {
-            'nullable': True,
-            'type': 'str'
-        },
-        'configurations': {
-            'nullable': True,
-            'type': 'json'
-        },
+        'output': {}
     }
 
     @staticmethod
@@ -323,31 +504,60 @@ class AcceptableData:
 
     def input(self, data: dict, rules: dict) -> dict:
         cd = dict()
+        rules = rules['input']
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
-                raise InputException(message=error_codes.INPUT_IS_NULL_MESSAGE,
-                                     error_code=error_codes.INPUT_IS_NULL_CODE)
+                err_message = "from acceptabledata.AcceptableData.input:" \
+                              " Input {} is not set.".format(key)
+                raise Exception(err_message)
             if key in data:
                 d = data[key]
                 if not self._is_the_length_correct(d, rules[key]['max_length'], rules[key]['min_length']):
-                    raise InputException(message=error_codes.INPUT_LENGTH_IS_INCORRECT_MESSAGE,
-                                         error_code=error_codes.INPUT_LENGTH_IS_INCORRECT_CODE)
+                    err_message = "from acceptabledata.AcceptableData.input:" \
+                                  " {} input length is not set correctly.".format(key)
+                    raise Exception(err_message)
                 if not self._is_the_type_correct(d, rules[key]['type']):
-                    raise InputException(message=error_codes.INPUT_TYPE_IS_INCORRECT_MESSAGE,
-                                         error_code=error_codes.INPUT_TYPE_IS_INCORRECT_CODE)
+                    err_message = "from acceptabledata.AcceptableData.input:" \
+                                  " Input data type {} is not set correctly.".format(key)
+                    raise Exception(err_message)
                 cd[key] = d
         return cd
 
-    def output(self, status: str, message: str, code: str, data, rules) -> dict:
+    def output(self, arguments: dict, rules: dict) -> dict:
         ret = dict()
-        ret['status'] = status
-        ret['message'] = message
-        ret['code'] = code
+        if 'status' in arguments:
+            ret['status'] = arguments['status']
+        else:
+            err_message = "from acceptabledata.AcceptableData.output:" \
+                          "'status' is not in arguments."
+            raise Exception(err_message)
+
+        if 'message' in arguments:
+            ret['message'] = arguments['message']
+        else:
+            err_message = "from acceptabledata.AcceptableData.output:" \
+                          "'message' is not in arguments."
+            raise Exception(err_message)
+        if 'code' in arguments:
+            ret['code'] = arguments['code']
+        else:
+            err_message = "from acceptabledata.AcceptableData.output:" \
+                          "'code' is not in arguments."
+            raise Exception(err_message)
+        if 'data' in arguments:
+            data = arguments['data']
+        else:
+            err_message = "from acceptabledata.AcceptableData.output:" \
+                          "'data' is not in arguments."
+            raise Exception(err_message)
+
+        rules = rules['output']
         info = dict()
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
-                raise InputException(message=error_codes.OUTPUT_IS_NULL_MESSAGE,
-                                     error_code=error_codes.OUTPUT_IS_NULL_CODE)
+                err_message = "from acceptabledata.AcceptableData.output:" \
+                              " Output {} is not set.".format(key)
+                raise Exception(err_message)
             if key in data:
                 info[key] = data[key]
         ret['information'] = info
