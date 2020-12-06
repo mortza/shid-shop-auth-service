@@ -1,10 +1,10 @@
-from application import app, redis_client, adata
+from application import application, redis_client, adata
 from application.repositories import UserRepository
 from repository.ok import *
 from application.decorator import cleanData, is_login
 
 
-@app.route('/register', methods=['POST'])
+@application.route('/register', methods=['POST'])
 @cleanData(adata.signup_rules)
 def register(clean_data: dict) -> dict:
     """
@@ -128,7 +128,7 @@ def register(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/login', methods=['POST'])
+@application.route('/login', methods=['POST'])
 @cleanData(adata.login_rules)
 def login(clean_data: dict) -> dict:
     """
@@ -203,7 +203,7 @@ def login(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/logout', methods=['POST'], endpoint='logout')
+@application.route('/logout', methods=['POST'], endpoint='logout')
 @is_login(adata.logout_rules)
 def logout(clean_data: dict) -> dict:
     """
@@ -241,7 +241,7 @@ def logout(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/update/password', methods=['POST'], endpoint='update_password')
+@application.route('/user/update/password', methods=['POST'], endpoint='update_password')
 @is_login(adata.password_update_rules)
 def update_password(clean_data: dict) -> dict:
     """
@@ -324,7 +324,7 @@ def update_password(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/update/phone-number', methods=['POST'], endpoint='update_phone_number')
+@application.route('/user/update/phone-number', methods=['POST'], endpoint='update_phone_number')
 @is_login(adata.phone_number_update_rules)
 def update_phone_number(clean_data: dict) -> dict:
     """
@@ -369,7 +369,7 @@ def update_phone_number(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/update/email', methods=['POST'], endpoint='update_email')
+@application.route('/user/update/email', methods=['POST'], endpoint='update_email')
 @is_login(adata.email_update_rules)
 def update_email(clean_data: dict) -> dict:
     """
@@ -414,7 +414,7 @@ def update_email(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/update/user-information', methods=['POST'], endpoint='update_user_information')
+@application.route('/user/update/user-information', methods=['POST'], endpoint='update_user_information')
 @is_login(adata.user_info_update_rules)
 def update_user_information(clean_data: dict) -> dict:
     """
@@ -459,7 +459,7 @@ def update_user_information(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/update/company-information', methods=['POST'], endpoint='update_company_information')
+@application.route('/user/update/company-information', methods=['POST'], endpoint='update_company_information')
 @is_login(adata.company_info_update_rules)
 def update_company_information(clean_data: dict) -> dict:
     """
@@ -504,7 +504,7 @@ def update_company_information(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/update/configurations', methods=['POST'], endpoint='update_configurations')
+@application.route('/user/update/configurations', methods=['POST'], endpoint='update_configurations')
 @is_login(adata.configurations_update_rules)
 def update_configurations(clean_data: dict) -> dict:
     """
@@ -549,7 +549,7 @@ def update_configurations(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/recovery-by/send-sms', methods=['POST'], endpoint='recovery_by_send_sms')
+@application.route('/recovery-by/send-sms', methods=['POST'], endpoint='recovery_by_send_sms')
 @cleanData(adata.recovery_by_sms_rules)
 def recovery_by_send_sms(clean_data: dict) -> dict:
     """
@@ -588,7 +588,7 @@ def recovery_by_send_sms(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/recovery-by/send-email', methods=['POST'], endpoint='recovery_by_send_email')
+@application.route('/recovery-by/send-email', methods=['POST'], endpoint='recovery_by_send_email')
 @cleanData(adata.recovery_by_email_rules)
 def recovery_by_send_email(clean_data: dict) -> dict:
     """
@@ -627,7 +627,7 @@ def recovery_by_send_email(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/recovery-by/last-password', methods=['POST'], endpoint='recovery_by_last_password')
+@application.route('/recovery-by/last-password', methods=['POST'], endpoint='recovery_by_last_password')
 @cleanData(adata.recovery_by_last_password_rules)
 def recovery_by_last_password(clean_data: dict) -> dict:
     """
@@ -703,7 +703,7 @@ def recovery_by_last_password(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/recovery-by/answers', methods=['POST'], endpoint='recovery_by_answers')
+@application.route('/recovery-by/answers', methods=['POST'], endpoint='recovery_by_answers')
 @cleanData(adata.recovery_by_answers_rules)
 def recovery_by_answers(clean_data: dict) -> dict:
     """
@@ -779,7 +779,7 @@ def recovery_by_answers(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/delete-account', methods=['POST'], endpoint='delete_account')
+@application.route('/user/delete-account', methods=['POST'], endpoint='delete_account')
 @is_login(adata.delete_account_rules)
 def delete_account(clean_data: dict) -> dict:
     """
@@ -818,7 +818,7 @@ def delete_account(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/register/vcode/send-sms', methods=['POST'], endpoint='send_vcode_ph')
+@application.route('/register/vcode/send-sms', methods=['POST'], endpoint='send_vcode_ph')
 @is_login(adata.send_vcode_phone_number_rules)
 def send_vcode_ph(clean_data: dict) -> dict:
     """
@@ -865,7 +865,7 @@ def send_vcode_ph(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/register/vcode/send-email', methods=['POST'], endpoint='send_vcode_ea')
+@application.route('/register/vcode/send-email', methods=['POST'], endpoint='send_vcode_ea')
 @is_login(adata.email_vcode_email_address_rules)
 def send_vcode_ea(clean_data: dict) -> dict:
     """
@@ -912,7 +912,7 @@ def send_vcode_ea(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/register/vcode/send-sms/confirm', methods=['POST'], endpoint='confirm_code_ph')
+@application.route('/register/vcode/send-sms/confirm', methods=['POST'], endpoint='confirm_code_ph')
 @is_login(adata.confirm_vcode_phone_number_rules)
 def confirm_code_ph(clean_data: dict) -> dict:
     """
@@ -966,7 +966,7 @@ def confirm_code_ph(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/register/vcode/send-email/confirm', methods=['POST'], endpoint='confirm_code_ea')
+@application.route('/register/vcode/send-email/confirm', methods=['POST'], endpoint='confirm_code_ea')
 @is_login(adata.confirm_vcode_email_address_rules)
 def confirm_code_ea(clean_data: dict) -> dict:
     """
@@ -1020,7 +1020,7 @@ def confirm_code_ea(clean_data: dict) -> dict:
     return ret
 
 
-@app.route('/user/add-address', methods=['POST'], endpoint='add_address')
+@application.route('/user/add-address', methods=['POST'], endpoint='add_address')
 @is_login(adata.add_address_rules)
 def add_address(clean_data: dict) -> dict:
     """

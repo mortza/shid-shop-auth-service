@@ -1,5 +1,5 @@
 from application import routes
-from application import app
+from application import application
 
 if __name__ == '__main__':
-    app.run()
+    application.run()
