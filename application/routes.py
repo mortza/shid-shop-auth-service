@@ -1,384 +1,1063 @@
-from flask import request, make_response
-from application import app, redis_client, db
-from application.exceptions import UserException, TokenException, ArgsException
+from application import app, redis_client, adata
 from application.repositories import UserRepository
-from repository import error_codes
-import json
-from application.models import Token, User
-
-
-def token_is_exist(func):
-    def in_redis_or_in_db():
-        auth_token = ''
-        if 'Authorization' in request.headers:
-            auth_token = request.headers['Authorization']
-            auth_token = auth_token.split(' ')
-            auth_token = auth_token[1]
-        else:
-            raise ArgsException(message=error_codes.KEY_IS_EMPTY_MESSAGE,
-                                error_code=error_codes.KEY_IS_EMPTY_CODE)
-        if redis_client.get(auth_token):
-            return func()
-        else:
-            auth_token = db.session.query(Token).filter(Token.token == auth_token).first()
-            if auth_token is not None:
-                user = db.session.query(User).filter(User.id == auth_token.user_id).first()
-                redis_client.set(auth_token.token, json.dumps(user.to_dict))
-                return func()
-            else:
-                raise TokenException(message=error_codes.TOKEN_NOT_EXIST_ON_DATABASE_MESSAGE,
-                                     error_code=error_codes.TOKEN_NOT_EXIST_ON_DATABASE_CODE)
-
-    return in_redis_or_in_db
+from repository.ok import *
+from application.decorator import cleanData, is_login
 
 
 @app.route('/register', methods=['POST'])
-def register():
+@cleanData(adata.signup_rules)
+def register(clean_data: dict) -> dict:
     """
-    request.args -> {
-        'phone_number': 'req',
-        'email': 'req',
-        'password': 'req',
-        'first_name': 'opt',
-        'last_name': 'opt',
-        'avatar_url': 'opt',
-        'personal_account_number': 'opt',
-        'card_number': 'opt',
-        'national_card': 'opt',
-        'last_password': 'opt',
-        'answers': 'opt',
-        'configurations': 'opt',
+    {
+        'request URL': '/register',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'role': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'real_or_legal': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'phone_number': {
+                    'nullable': False,
+                    'max_length': 11,
+                    'min_length': 11,
+                    'type': 'snum'
+                },
+                'password': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': 8,
+                    'type': 'str'
+                },
+                'email': {
+                    'nullable': True,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'email'
+                },
+                'user_information': {
+                    'nullable': True,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                },
+                'company_information': {
+                    'nullable': True,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'answers': {
+                    'nullable': True,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                },
+                'configurations': {
+                    'nullable': True,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'auth_token': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'role': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'real_or_legal': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'phone_number': {
+                        'nullable': False,
+                        'type': 'snum'
+                    },
+                    'email': {
+                        'nullable': True,
+                        'type': 'email'
+                    },
+                    'user_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                    'company_information': {
+                        'nullable': True,
+                        'type': 'str'
+                    },
+                    'configurations': {
+                        'nullable': True,
+                        'type': 'json'
+                    }, }
+            }
+        },
+        "message": "",
+        "status": ""
     }
-    :return:
     """
-    try:
-        repo = UserRepository()
-        ret = repo.register(**request.args)
-        return make_response(ret)
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+    repo = UserRepository()
+    repo.register(clean_data)
+    # todo sms
+    # todo email
+    tkn, ret = repo.login(
+        {
+            'user_name': clean_data['phone_number'],
+            'password': clean_data['password'],
+        }
+    )
+    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    ret['code'] = SIGNUP_CODE
+    ret['message'] = SIGNUP_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
 @app.route('/login', methods=['POST'])
-def login():
+@cleanData(adata.login_rules)
+def login(clean_data: dict) -> dict:
     """
-    request.args -> {
-            'user_name'('phone_number' or 'email') : 'opt'
-            'phone_number': 'opt',
+    {
+        'request URL': '/login',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'user_name': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'password': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': 8,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'auth_token': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'role': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'real_or_legal': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'phone_number': {
+                        'nullable': False,
+                        'type': 'snum'
+                    },
+                    'email': {
+                        'nullable': True,
+                        'type': 'email'
+                    },
+                    'user_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                    'company_information': {
+                        'nullable': True,
+                        'type': 'str'
+                    },
+                    'configurations': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                }
             }
-    :return:
+        },
+        "message": "",
+        "status": ""
+    }
     """
-    try:
-        repo = UserRepository()
-        token, user_info = repo.login(**request.args)
-        redis_client.set(token, json.dumps(user_info))
-        ret = dict()
-        ret['login_token'] = token
-        ret['user_info'] = user_info
-        ret['status'] = 'ok'
-        ret['code'] = error_codes.OK_STATUS
-        ret['message'] = ''
-        return make_response((ret, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+    repo = UserRepository()
+    tkn, ret = repo.login(clean_data)
+    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    ret['code'] = LOGIN_CODE
+    ret['message'] = LOGIN_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
 @app.route('/logout', methods=['POST'], endpoint='logout')
-@token_is_exist
-def logout():
-    try:
-        repo = UserRepository()
-        token = repo.logout(**request.args)
-        ret = redis_client.delete(token)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'Logout completed successfully.'
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
-
-
-@app.route('/user/update', methods=['POST'], endpoint='update')
-@token_is_exist
-def update():
+@is_login(adata.logout_rules)
+def logout(clean_data: dict) -> dict:
     """
-    request.args -> {
-            'user_name'('phone_number' or 'email') : 'opt'
-            'new_phone_number': 'opt',
-            'new_email': 'opt',
-            'new_password': 'opt',
-            'new_first_name': 'opt',
-            'new_last_name': 'opt',
-            'new_avatar_url': 'opt',
-            'new_personal_account_number': 'opt',
-            'new_card_number': 'opt',
-            'new_national_card': 'opt',
-            'new_configurations': 'opt',
+    {
+        'request URL': '/logout',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    tkn = repo.logout(clean_data)
+    redis_client.delete(tkn)
+    ret = dict()
+    ret['data'] = {}
+    ret['code'] = LOGOUT_CODE
+    ret['message'] = LOGOUT_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/user/update/password', methods=['POST'], endpoint='update_password')
+@is_login(adata.password_update_rules)
+def update_password(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/update/password',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'password': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': 8,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'auth_token': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'role': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'real_or_legal': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'phone_number': {
+                        'nullable': False,
+                        'type': 'snum'
+                    },
+                    'email': {
+                        'nullable': True,
+                        'type': 'email'
+                    },
+                    'user_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                    'company_information': {
+                        'nullable': True,
+                        'type': 'str'
+                    },
+                    'configurations': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    tkns, user_name = repo.update(clean_data, 'update_password')
+    for tkn in tkns:
+        redis_client.delete(tkn.token)
+    tkn, ret = repo.login(
+        {
+            'user_name': user_name,
+            'password': clean_data['password'],
         }
-    :return:
+    )
+    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    ret['code'] = UPDATE_PASSWORD_CODE
+    ret['message'] = UPDATE_PASSWORD_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/user/update/phone-number', methods=['POST'], endpoint='update_phone_number')
+@is_login(adata.phone_number_update_rules)
+def update_phone_number(clean_data: dict) -> dict:
     """
-    try:
-        repo = UserRepository()
-        user_info = repo.update(**request.args)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': 1,
-                                  'message': 'Update completed successfully.',
-                                  'user_info': user_info
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
-
-
-@app.route('/forget', methods=['POST'])
-def page_recovery():
+    {
+        'request URL': '/user/update/phone-number',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'phone_number': {
+                    'nullable': False,
+                    'max_length': 11,
+                    'min_length': 11,
+                    'type': 'snum'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
     """
-    request.args -> {
-            'user_name'(phone_number or email) : 'opt'
-            'send_code_to_phone_number'(False_or_True_or_None): 'opt',
-            'send_code_to_email'(False_or_True_or_None): 'opt',
-            'login_by_last_password(entered last password)': 'opt',
-            'login_by_answered_to_questions({ans_to_q_1 : value,(and for all questions)})': 'opt',
-        }
-    :return:
+    repo = UserRepository()
+    res = repo.update(clean_data, 'update_phone_number')
+    # todo
+    res['auth_token'] = ''
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = UPDATE_PHONE_NUMBER_CODE
+    ret['message'] = UPDATE_PHONE_NUMBER_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/user/update/email', methods=['POST'], endpoint='update_email')
+@is_login(adata.email_update_rules)
+def update_email(clean_data: dict) -> dict:
     """
-    try:
-        repo = UserRepository()
-        res = repo.page_recovery(**request.args)
-        if 'temporary_password' in res:
-            tp = res['temporary_password']
-            return make_response(({
-                                      'status': 'ok',
-                                      'code': 1,
-                                      'message': 'send code.',
-                                      'information': tp
-                                  }, 200))
-        if 'token' in res:
-            tkn = res['token']
-            uinfo = res['user_info']
-            redis_client.set(tkn, json.dumps(uinfo))
-            print('*****************************&&&&&&&&&&')
-            return make_response(({
-                                      'status': 'ok',
-                                      'code': 1,
-                                      'message': 'login',
-                                      'information': res
-                                  }, 200))
-
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
-
-
-@app.route('/delete-account', methods=['POST'], endpoint='delete')
-@token_is_exist
-def delete():
-    try:
-        repo = UserRepository()
-        tokens = repo.delete(**request.args)
-        for token in tokens:
-            redis_client.delete(token.token)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'delete account successfully.'
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+    {
+        'request URL': '/user/update/email',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'email': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'email'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.update(clean_data, 'update_email')
+    # todo
+    res['auth_token'] = ''
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = UPDATE_EMAIL_ADDRESS_CODE
+    ret['message'] = UPDATE_EMAIL_ADDRESS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
-@app.route('/register/verification-code-for-phone',
-           methods=['POST'],
-           endpoint='send_vcode_ph')
-@token_is_exist
-def send_vcode_ph():
-    try:
-        repo = UserRepository()
-        vcode = repo.create_verify_code(**request.args)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'send vcode for phone number.',
-                                  'informations': vcode
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+@app.route('/user/update/user-information', methods=['POST'], endpoint='update_user_information')
+@is_login(adata.user_info_update_rules)
+def update_user_information(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/update/user-information',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'user_information': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.update(clean_data, 'update_user_information')
+    # todo
+    res['auth_token'] = ''
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = UPDATE_USER_INFORMATION_CODE
+    ret['message'] = UPDATE_USER_INFORMATION_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
-@app.route('/register/verification-code-for-email',
-           methods=['POST'],
-           endpoint='send_vcode_e')
-@token_is_exist
-def send_vcode_e():
-    try:
-        repo = UserRepository()
-        vcode = repo.create_verify_code(**request.args)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'send vcode for email.',
-                                  'informations': vcode
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+@app.route('/user/update/company-information', methods=['POST'], endpoint='update_company_information')
+@is_login(adata.company_info_update_rules)
+def update_company_information(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/update/company-information',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'company_information': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.update(clean_data, 'update_company_information')
+    # todo
+    res['auth_token'] = ''
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = UPDATE_COMPANY_INFORMATION_CODE
+    ret['message'] = UPDATE_COMPANY_INFORMATION_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
-@app.route('/register/verify-phone-verification-code',
-           methods=['POST'],
-           endpoint='confirm_code_ph')
-@token_is_exist
-def confirm_code_ph():
-    try:
-        repo = UserRepository()
-        res = repo.check_code_ph(**request.args)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'phone number vcode is {}.'.format(str(res)),
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+@app.route('/user/update/configurations', methods=['POST'], endpoint='update_configurations')
+@is_login(adata.configurations_update_rules)
+def update_configurations(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/update/configurations',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'configurations': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.update(clean_data, 'update_configurations')
+    # todo
+    res['auth_token'] = ''
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = UPDATE_CONFIGURATIONS_CODE
+    ret['message'] = UPDATE_CONFIGURATIONS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
-@app.route('/register/verify-email-verification-code',
-           methods=['POST'],
-           endpoint='confirm_code_e')
-@token_is_exist
-def confirm_code_e():
-    try:
-        repo = UserRepository()
-        res = repo.check_code_e(**request.args)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'email vcode is {}.'.format(str(res)),
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+@app.route('/recovery-by/send-sms', methods=['POST'], endpoint='recovery_by_send_sms')
+@cleanData(adata.recovery_by_sms_rules)
+def recovery_by_send_sms(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/recovery-by/send-sms',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'phone_number': {
+                    'nullable': False,
+                    'max_length': 11,
+                    'min_length': 11,
+                    'type': 'snum'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.page_recovery(clean_data, 'recovery_by_send_sms')
+    print(res)
+    # todo send sms. phone number : res['user_name'] and sms text : res['temporary_password']
+    ret = dict()
+    ret['data'] = dict()
+    ret['code'] = RECOVERY_BY_SEND_SMS_CODE
+    ret['message'] = RECOVERY_BY_SEND_SMS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
 
 
-@app.route('/user/add-address',
-           methods=['POST'],
-           endpoint='add_address')
-@token_is_exist
-def add_address():
-    try:
-        repo = UserRepository()
-        res = repo.add_address(**request.args)
-        return make_response(({
-                                  'status': 'ok',
-                                  'code': error_codes.OK_STATUS,
-                                  'message': 'Address added.',
-                              }, 200))
-    except UserException as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': ex.error_code,
-                                  'message': ex.message
-                              }, 500))
-    except Exception as ex:
-        return make_response(({
-                                  'status': 'error',
-                                  'code': '-1',
-                                  'message': str(ex)
-                              }, 500))
+@app.route('/recovery-by/send-email', methods=['POST'], endpoint='recovery_by_send_email')
+@cleanData(adata.recovery_by_email_rules)
+def recovery_by_send_email(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/recovery-by/send-email',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'email': {
+                    'nullable': True,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'email'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.page_recovery(clean_data, 'recovery_by_send_email')
+    print(res)
+    # todo send email. email address : res['user_name'] and email text : res['temporary_password']
+    ret = dict()
+    ret['data'] = dict()
+    ret['code'] = RECOVERY_BY_SEND_EMAIL_CODE
+    ret['message'] = RECOVERY_BY_SEND_EMAIL_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/recovery-by/last-password', methods=['POST'], endpoint='recovery_by_last_password')
+@cleanData(adata.recovery_by_last_password_rules)
+def recovery_by_last_password(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/recovery-by/last-password',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'user_name': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'last_password': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': 8,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'auth_token': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'role': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'real_or_legal': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'phone_number': {
+                        'nullable': False,
+                        'type': 'snum'
+                    },
+                    'email': {
+                        'nullable': True,
+                        'type': 'email'
+                    },
+                    'user_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                    'company_information': {
+                        'nullable': True,
+                        'type': 'str'
+                    },
+                    'configurations': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    repo.page_recovery(clean_data, 'recovery_by_last_password')
+    tkn, ret = repo.login({'user_name': clean_data['user_name'], 'password': clean_data['last_password']})
+    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    ret['code'] = RECOVERY_BY_LAST_PASSWORD_CODE
+    ret['message'] = RECOVERY_BY_LAST_PASSWORD_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/recovery-by/answers', methods=['POST'], endpoint='recovery_by_answers')
+@cleanData(adata.recovery_by_answers_rules)
+def recovery_by_answers(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/recovery-by/answers',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'user_name': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'answers': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'auth_token': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'role': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'real_or_legal': {
+                        'nullable': False,
+                        'type': 'str'
+                    },
+                    'phone_number': {
+                        'nullable': False,
+                        'type': 'snum'
+                    },
+                    'email': {
+                        'nullable': True,
+                        'type': 'email'
+                    },
+                    'user_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                    'company_information': {
+                        'nullable': True,
+                        'type': 'str'
+                    },
+                    'configurations': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.page_recovery(clean_data, 'recovery_by_answers')
+    tkn, ret = repo.login({'user_name': res['user_name'], 'password': res['temporary_password']})
+    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    ret['code'] = RECOVERY_BY_ANSWERS_CODE
+    ret['message'] = RECOVERY_BY_ANSWERS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/user/delete-account', methods=['POST'], endpoint='delete_account')
+@is_login(adata.delete_account_rules)
+def delete_account(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/delete-account',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    tkns = repo.delete(clean_data)
+    for tkn in tkns:
+        redis_client.delete(tkn.token)
+    ret = dict()
+    ret['data'] = dict()
+    ret['code'] = DELETE_ACCOUNT_CODE
+    ret['message'] = DELETE_ACCOUNT_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/register/vcode/send-sms', methods=['POST'], endpoint='send_vcode_ph')
+@is_login(adata.send_vcode_phone_number_rules)
+def send_vcode_ph(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/register/vcode/send-sms',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'vcode_expiration_date': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'str'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.create_verify_code(clean_data, 'for_phone')
+    # todo send sms: phone number : ret['phone_number'] and sms text : ret['vcode_for_phone']
+    print(res['vcode_for_phone'])
+    ret = dict()
+    ret['vcode_expiration_date'] = res['vcode_expiration_date']
+    ret['data'] = ret
+    ret['code'] = SEND_VCODE_FOR_PHONE_NUMBER_CODE
+    ret['message'] = SEND_VCODE_FOR_PHONE_NUMBER_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/register/vcode/send-email', methods=['POST'], endpoint='send_vcode_ea')
+@is_login(adata.email_vcode_email_address_rules)
+def send_vcode_ea(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/register/vcode/send-email',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'vcode_expiration_date': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'str'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.create_verify_code(clean_data, 'for_email')
+    # todo send email: email address : ret['email_address'] and sms text : ret['vcode_for_email']
+    print(res['vcode_for_email'])
+    ret = dict()
+    ret['vcode_expiration_date'] = res['vcode_expiration_date']
+    ret['data'] = ret
+    ret['code'] = SEND_VCODE_FOR_EMAIL_ADDRESS_CODE
+    ret['message'] = SEND_VCODE_FOR_EMAIL_ADDRESS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/register/vcode/send-sms/confirm', methods=['POST'], endpoint='confirm_code_ph')
+@is_login(adata.confirm_vcode_phone_number_rules)
+def confirm_code_ph(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/register/vcode/send-sms/confirm',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'vcode': {
+                    'nullable': False,
+                    'max_length': 5,
+                    'min_length': 5,
+                    'type': 'snum'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'code_review_status': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'str'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.check_code(clean_data, 'for_phone')
+    ret = dict()
+    if res:
+        ret['code_review_status'] = 'The code is acceptable.'
+    else:
+        ret['code_review_status'] = 'The code is unacceptable.'
+    ret['data'] = ret
+    ret['code'] = CONFIRM_VCODE_FOR_PHONE_NUMBER_CODE
+    ret['message'] = CONFIRM_VCODE_FOR_PHONE_NUMBER_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/register/vcode/send-email/confirm', methods=['POST'], endpoint='confirm_code_ea')
+@is_login(adata.confirm_vcode_email_address_rules)
+def confirm_code_ea(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/register/vcode/send-email/confirm',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'vcode': {
+                    'nullable': False,
+                    'max_length': 4,
+                    'min_length': 4,
+                    'type': 'snum'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'code_review_status': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'str'
+                    },
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.check_code(clean_data, 'for_email')
+    ret = dict()
+    if res:
+        ret['code_review_status'] = 'The code is acceptable.'
+    else:
+        ret['code_review_status'] = 'The code is unacceptable.'
+    ret['data'] = ret
+    ret['code'] = CONFIRM_VCODE_FOR_EMAIL_ADDRESS_CODE
+    ret['message'] = CONFIRM_VCODE_FOR_EMAIL_ADDRESS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@app.route('/user/add-address', methods=['POST'], endpoint='add_address')
+@is_login(adata.add_address_rules)
+def add_address(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/add-address',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'address': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    repo.add_address(clean_data)
+    ret = dict()
+    ret['data'] = {}
+    ret['code'] = ADD_ADDRESS_CODE
+    ret['message'] = ADD_ADDRESS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret

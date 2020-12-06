@@ -1,7 +1,3 @@
-from repository.exceptions import InputException
-from repository import error_codes
-
-
 class AcceptableData:
     # input rules
     # signup
@@ -37,13 +33,13 @@ class AcceptableData:
                 'min_length': None,
                 'type': 'email'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': True,
                 'max_length': None,
                 'min_length': None,
                 'type': 'json'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': True,
                 'max_length': None,
                 'min_length': None,
@@ -83,11 +79,11 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'email'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': True,
                 'type': 'json'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': True,
                 'type': 'str'
             },
@@ -133,11 +129,11 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'email'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': True,
                 'type': 'json'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': True,
                 'type': 'str'
             },
@@ -213,11 +209,11 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'email'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': True,
                 'type': 'json'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': True,
                 'type': 'str'
             },
@@ -252,7 +248,7 @@ class AcceptableData:
                 'min_length': None,
                 'type': 'str'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': False,
                 'max_length': None,
                 'min_length': None,
@@ -269,7 +265,7 @@ class AcceptableData:
                 'min_length': None,
                 'type': 'str'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': False,
                 'max_length': None,
                 'min_length': None,
@@ -354,11 +350,11 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'email'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': True,
                 'type': 'json'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': True,
                 'type': 'str'
             },
@@ -379,7 +375,7 @@ class AcceptableData:
             'answers': {
                 'nullable': False,
                 'max_length': None,
-                'min_length': 8,
+                'min_length': None,
                 'type': 'json'
             },
         },
@@ -404,11 +400,11 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'email'
             },
-            'user_info': {
+            'user_information': {
                 'nullable': True,
                 'type': 'json'
             },
-            'company_info': {
+            'company_information': {
                 'nullable': True,
                 'type': 'str'
             },
@@ -440,7 +436,14 @@ class AcceptableData:
                 'type': 'str'
             },
         },
-        'output': {}
+        'output': {
+            'vcode_expiration_date': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        }
     }
     email_vcode_email_address_rules = {
         'input': {
@@ -451,7 +454,14 @@ class AcceptableData:
                 'type': 'str'
             },
         },
-        'output': {}
+        'output': {
+            'vcode_expiration_date': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        }
     }
     # confirm the received vcode
     confirm_vcode_email_address_rules = {
@@ -469,7 +479,14 @@ class AcceptableData:
                 'type': 'snum'
             }
         },
-        'output': {}
+        'output': {
+            'code_review_status': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        }
     }
     confirm_vcode_phone_number_rules = {
         'input': {
@@ -484,6 +501,32 @@ class AcceptableData:
                 'max_length': 4,
                 'min_length': 4,
                 'type': 'snum'
+            }
+        },
+        'output': {
+            'code_review_status': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        }
+    }
+
+    # add address
+    add_address_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'address': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
             }
         },
         'output': {}

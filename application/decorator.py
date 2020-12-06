@@ -1,8 +1,7 @@
 from functools import wraps
 from flask import request, make_response, jsonify
 from application import redis_client, db, adata
-import json
-from application.models import Token, User
+from application.models import Token
 
 
 def cleanData(rule):
@@ -46,7 +45,9 @@ def is_login(rule):
             try:
                 i_c_data = adata.input(request.args, rule)
                 auth_token = i_c_data['auth_token']
-                if redis_client.get(auth_token):
+                redis_value = redis_client.get(auth_token)
+                if redis_value:
+                    i_c_data['user_id'] = int(redis_value)
                     res = func(i_c_data)
                     o_c_data = adata.output(res, rule)
                     return make_response(
@@ -62,8 +63,9 @@ def is_login(rule):
                 else:
                     auth_token = db.session.query(Token).filter(Token.token == auth_token).first()
                     if auth_token is not None:
-                        user = db.session.query(User).filter(User.id == auth_token.user_id).first()
-                        redis_client.set(auth_token.token, json.dumps(user.to_dict))
+                        # user = db.session.query(User).filter(User.id == auth_token.user_id).first()
+                        redis_client.set(auth_token.token, auth_token.user_id) #json.dumps(user.to_dict))
+                        i_c_data['user_id'] = auth_token.user_id
                         res = func(i_c_data)
                         o_c_data = adata.output(res, rule)
                         return make_response(
