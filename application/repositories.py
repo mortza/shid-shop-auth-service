@@ -81,6 +81,10 @@ class UserRepository(UserRepositoryBase):
         db.session.commit()
         return {'user_name': user.phone_number, 'temporary_password': res}
 
+    @staticmethod
+    def _create_list() -> dict:
+        pass
+
     def register(self, clean_data: dict) -> None:
         old_usr = self._user_is_exist(email=clean_data['email'], phone_number=clean_data['phone_number'])
         if old_usr is not None:
@@ -228,3 +232,33 @@ class UserRepository(UserRepositoryBase):
         db.session.add(address)
         db.session.commit()
         return address.to_dict
+
+    def get_addresses(self, clean_data: dict) -> dict:
+        uid = clean_data['user_id']
+        usr = db.session.query(User).filter(User.id == uid).first()
+        ret = dict()
+        ret['addresses'] = usr.address_list
+        return ret
+
+    def active_session(self, clean_data: dict) -> dict:
+        uid = clean_data['user_id']
+        usr = db.session.query(User).filter(User.id == uid).first()
+        ret = dict()
+        ret['sessions'] = usr.session_list
+        return ret
+
+    def delete_session(self, clean_data: dict) -> None:
+        sess = clean_data['session']
+        tkn = db.session.query(Token).filter(Token.token == sess).first()
+        if tkn is None:
+            raise Exception("Imported session does not exist or is entered incorrectly.")
+        db.session.delete(tkn)
+        db.session.commit()
+
+    def delete_all_sessions(self, clean_data: dict) -> Token:
+        uid = clean_data['user_id']
+        auth_tkn = clean_data['auth_token']
+        tkns = db.session.query(Token).filter((Token.user_id == uid) & (Token.token != auth_tkn)).all()
+        db.session.query(Token).filter((Token.user_id == uid) & (Token.token != auth_tkn)).delete()
+        db.session.commit()
+        return tkns

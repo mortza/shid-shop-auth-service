@@ -32,3 +32,12 @@ class UserRepositoryBase:
 
     def add_address(self, clean_data: dict) -> dict:
         pass
+
+    def get_addresses(self, clean_data: dict) -> dict:
+        pass
+
+    def active_session(self, clean_data: dict) -> dict:
+        pass
+
+    def delete_session(self, clean_data: dict) -> None:
+        pass

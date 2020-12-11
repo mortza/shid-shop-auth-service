@@ -771,3 +771,115 @@ add_address = {
     "message": "",
     "status": ""
 }
+# ------------------------------------------------------------------------------------------------
+get_addresses = {
+        'request URL': '/user/get-addresses',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'addresses': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'json'
+                    }
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+# ------------------------------------------------------------------------------------------------
+active_session = {
+        'request URL': '/user/active-sessions',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'active_sessions': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'json'
+                    }
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+# ------------------------------------------------------------------------------------------------
+delete_session = {
+        'request URL': '/user/delete-session',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'session': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+
+delete_all_active_sessions = {
+        'request URL': '/user/delete-all-active-sessions',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }

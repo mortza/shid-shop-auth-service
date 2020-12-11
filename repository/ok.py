@@ -1,4 +1,5 @@
 OK_STATUS = 'OK'
+NOK_STATUS = 'NOK'
 
 SIGNUP_CODE = 270
 SIGNUP_MESSAGE = 'Registration completed successfully and user login done.'
@@ -56,3 +57,16 @@ CONFIRM_VCODE_FOR_EMAIL_ADDRESS_MESSAGE = 'The code sent to the email address wa
 
 ADD_ADDRESS_CODE = 288
 ADD_ADDRESS_MESSAGE = 'Address saved.'
+
+GET_ADDRESSES_CODE = 289
+GET_ADDRESSES_MESSAGE = 'List of addresses sent.'
+
+GET_ACTIVE_SESSIONS_CODE = 290
+GET_ACTIVE_SESSIONS_MESSAGE = 'List of active sessions.'
+
+DEL_SESSION_CODE = 291
+DEL_SESSION_MESSAGE = 'Delete session completed.'
+
+DEL_ALL_SESSION_CODE = 292
+DEL_ALL_SESSION_MESSAGE = 'Delete all active session completed.'
+

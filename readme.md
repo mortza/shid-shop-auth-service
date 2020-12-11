@@ -1,7 +1,8 @@
 # AUTH SERVICE
 این یک سیستم مدیریت کاربران است که به زبان برنامه نویسی پایتون و با استفاده از فریمورک فلسک نوشته شده است.
 
-## ساختار استفاده از توابع درون سرویس
+## Format
+ ساختار استفاده از توابع درون سرویس
 شکل کلی کار کردن با توابع درون سرویس بصورت زیر می باشد:
 ```python
 {
@@ -86,7 +87,8 @@ None:
 <br /> 
 این مقدار به معنای نامشخص یا مشخص نشده می باشد.   
     
-##ثبت نام کاربر 
+## Register
+ثبت نام کاربر 
 
 ```python
 {
@@ -192,8 +194,8 @@ None:
     "status": ""
 }
 ```
-
-## ورود کاربر 
+## login
+ ورود کاربر 
 ```python
 {
     'request URL': '/login',
@@ -257,8 +259,8 @@ None:
     "status": ""
 }
 ```
-
-## خروج کاربر 
+## Logout
+ خروج کاربر 
 ```python
 {
     'request URL': '/logout',
@@ -283,8 +285,8 @@ None:
     "status": ""
 }
 ```
-
-## بروز رسانی کلمه عبور
+## Reset Password(update)
+ بروز رسانی کلمه عبور
 در این بروزرسانی زمانی که کلمه ی عبور تغییر پیدا می کند، تمامی لاگین ها از سیستم های مختلف کاربر، لاگاوت می شود و نیاز است که کاربر برای ورود با رمز جدید برای ورود اقدام کند.  
 ```python
 {
@@ -349,8 +351,8 @@ None:
     "status": ""
 }
 ```
-
-## بروزرسانی شماره تلفن
+## Phone Number(update)
+ بروزرسانی شماره تلفن
 در این بروز رسانی فعال بودن شماره تلفن به حالت فالس تبدیل میشود وبرای اعتبار سنجی و فعال ساختن شماره تلفن، کاربر اقدامات لازم را انجام دهد. 
 ```python
 {
@@ -382,8 +384,8 @@ None:
     "status": ""
 }
 ```
-
-## بروزرسانی آدرس ایمیل
+## Email(update)
+ بروزرسانی آدرس ایمیل
 در این بروز رسانی فعال بودن آدرس ایمیل به حالت فالس تبدیل میشود وبرای اعتبار سنجی و فعال ساختن آدرس ایمیل، کاربر اقدامات لازم را انجام دهد. 
 ```python
 {
@@ -415,8 +417,8 @@ None:
     "status": ""
 }
 ```
-
-## بروز رسانی اطلاعات کاربر حقیقی 
+## User Information(update)
+ بروز رسانی اطلاعات کاربر حقیقی 
 ```python
 {
     'request URL': '/user/update/user-information',
@@ -447,8 +449,8 @@ None:
     "status": ""
 }
 ```
-
-## بروز رسانی اطلاعات کاربر حقوقی
+## Company information(update)
+ بروز رسانی اطلاعات کاربر حقوقی
 ```python
 {
     'request URL': '/user/update/company-information',
@@ -479,8 +481,8 @@ None:
     "status": ""
 }
 ```
-
-## بروزرسانی کانفیگوریشن ها 
+## Configurations(update)
+ بروزرسانی کانفیگوریشن ها 
 ```python
 {
     'request URL': '/user/update/configurations',
@@ -511,8 +513,8 @@ None:
     "status": ""
 }
 ```
-
-## بازیابی پروفایل کاربر در هنگام فراموشی کلمه عبور با استفاده از ارسال رمز موقت به شماره تلفن کاربر
+## SMS(recovery)
+ بازیابی پروفایل کاربر در هنگام فراموشی کلمه عبور با استفاده از ارسال رمز موقت به شماره تلفن کاربر
 ```python
 {
     'request URL': '/recovery-by/send-sms',
@@ -537,8 +539,8 @@ None:
     "status": ""
 }
 ```
-
-## بازیابی پروفایل کاربر در هنگام فراموشی کلمه عبور با استفاده از ارسال رمز موقت به آدرس ایمیل کاربر
+## Email(recovery)
+ بازیابی پروفایل کاربر در هنگام فراموشی کلمه عبور با استفاده از ارسال رمز موقت به آدرس ایمیل کاربر
 ```python
 {
     'request URL': '/recovery-by/send-email',
@@ -563,8 +565,8 @@ None:
     "status": ""
 }
 ```
-
-## بازیابی پروفایل کاربر و ورود کاربر در هنگام فراموشی کلمه عبور با استفاده از کلمه عبور قبلی کاربر
+## Last Password(recovery)
+ بازیابی پروفایل کاربر و ورود کاربر در هنگام فراموشی کلمه عبور با استفاده از کلمه عبور قبلی کاربر
 ```python
 {
     'request URL': '/recovery-by/last-password',
@@ -628,8 +630,8 @@ None:
     "status": ""
 }
 ```
-
-## بازیابی پروفایل کاربر و ورود کاربر در هنگام فراموشی کلمه عبور با استفاده پاسخ صحیح به پرسش های از قبل پرسیده شده
+## Answers
+ بازیابی پروفایل کاربر و ورود کاربر در هنگام فراموشی کلمه عبور با استفاده پاسخ صحیح به پرسش های از قبل پرسیده شده
 ```python
 {
     'request URL': '/recovery-by/answers',
@@ -693,8 +695,8 @@ None:
     "status": ""
 }
 ```
-
-## حذف کامل کاربر 
+## Delete Account
+ حذف کامل کاربر 
 ```python
 {
     'request URL': '/user/delete-account',
@@ -719,8 +721,8 @@ None:
     "status": ""
 }
 ```
-
-## ارسال کد تایید به شماره تلفن 
+## Send Vcode(sms)
+ ارسال کد تایید به شماره تلفن 
 ```python
 {
     'request URL': '/register/vcode/send-sms',
@@ -752,8 +754,8 @@ None:
     "status": ""
 }
 ```
-
-## ارسال کد تایید به ایمیل کاربر 
+## Send Vcode(email)
+ارسال کد تایید به ایمیل کاربر 
 ```python
 {
     'request URL': '/register/vcode/send-email',
@@ -785,8 +787,8 @@ None:
     "status": ""
 }
 ```
-
-## چک کردن صحت کد تایید از طریق اس ام اس
+## Confirm Vcode(sms)
+ چک کردن صحت کد تایید از طریق اس ام اس
 ```python
 {
     'request URL': '/register/vcode/send-sms/confirm',
@@ -824,8 +826,8 @@ None:
     "status": ""
 }
 ```
-
-## چک کردن صحت کد تایید از طریق ایمیل 
+## Confirm Vcode(email)
+ چک کردن صحت کد تایید از طریق ایمیل 
 ```python
 {
     'request URL': '/register/vcode/send-email/confirm',
@@ -863,8 +865,8 @@ None:
     "status": ""
 }
 ```
-
-## اضافه کردن آدرس
+## Add Address
+ اضافه کردن آدرس به لیست آدرس های کاربر 
 ```python
 {
     'request URL': '/user/add-address',
@@ -894,4 +896,129 @@ None:
     "message": "",
     "status": ""
 }
+```
+## Get Addresses
+ دریافت تمام آدرس های مربوط کاربر
+```python
+{
+        'request URL': '/user/get-addresses',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'addresses': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'json'
+                    }
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+```
+
+## Active Session
+نمایش دستگاه های لاگین شده در سیستم
+```python
+{
+        'request URL': '/user/active-sessions',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'active_sessions': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'json'
+                    }
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+```
+## Delete Session
+لاگ آوت کردن یک سیستم مد نظر
+```python
+{
+        'request URL': '/user/delete-session',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'session': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+```
+## Delete All Active Sessions
+لاگ آوت کردن تمام سیستم هایی که لاگین می باشند. هستند به جز همین سیستمی که در حال حاظر با آن لاگین هستید.
+```python
+{
+        'request URL': '/user/delete-all-active-sessions',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
 ```

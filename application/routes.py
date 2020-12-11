@@ -1061,3 +1061,174 @@ def add_address(clean_data: dict) -> dict:
     ret['message'] = ADD_ADDRESS_MESSAGE
     ret['status'] = OK_STATUS
     return ret
+
+
+@application.route('/user/get-addresses', methods=['POST'], endpoint='get_addresses')
+@is_login(adata.get_addresses_rules)
+def get_addresses(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/get-addresses',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'addresses': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'json'
+                    }
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.get_addresses(clean_data)
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = GET_ADDRESSES_CODE
+    ret['message'] = GET_ADDRESSES_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@application.route('/user/active-sessions', methods=['POST'], endpoint='active_session')
+@is_login(adata.get_sessions_rules)
+def active_session(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/active-sessions',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {
+                    'active_sessions': {
+                        'nullable': False,
+                        'max_length': None,
+                        'min_length': None,
+                        'type': 'json'
+                    }
+                }
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.active_session(clean_data)
+    ret = dict()
+    ret['data'] = res
+    ret['code'] = GET_ACTIVE_SESSIONS_CODE
+    ret['message'] = GET_ACTIVE_SESSIONS_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@application.route('/user/delete-session', methods=['POST'], endpoint='delete_session')
+@is_login(adata.delete_sessions_rules)
+def delete_session(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/delete-session',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+                'session': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                }
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    repo.delete_session(clean_data)
+    redis_client.delete(clean_data['session'])
+    ret = dict()
+    ret['data'] = {}
+    ret['code'] = DEL_SESSION_CODE
+    ret['message'] = DEL_SESSION_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
+
+
+@application.route('/user/delete-all-active-sessions', methods=['POST'], endpoint='delete_all_active_sessions')
+@is_login(adata.delete_all_sessions_rules)
+def delete_all_active_sessions(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/delete-all-active-sessions',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    repo = UserRepository()
+    res = repo.delete_all_sessions(clean_data)
+    for tkn in res:
+        redis_client.delete(tkn.token)
+    ret = dict()
+    ret['data'] = {}
+    ret['code'] = DEL_ALL_SESSION_CODE
+    ret['message'] = DEL_ALL_SESSION_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret

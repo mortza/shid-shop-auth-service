@@ -532,6 +532,78 @@ class AcceptableData:
         'output': {}
     }
 
+    # get addresses
+    get_addresses_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+        'output': {
+            'addresses': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+        },
+    }
+
+    # get sessions
+    get_sessions_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+        'output': {
+            'sessions': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+        },
+    }
+
+    # del session
+    delete_sessions_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'session': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+        'output': {},
+    }
+
+    # del all session
+    delete_all_sessions_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+        'output': {},
+    }
+
     @staticmethod
     def _is_the_length_correct(data, max_length, min_length) -> bool:
         if max_length is not None and len(data) > max_length:
