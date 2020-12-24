@@ -604,6 +604,19 @@ class AcceptableData:
         'output': {},
     }
 
+    # user is login or not
+    user_is_login_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+        'output': {},
+    }
+
     @staticmethod
     def _is_the_length_correct(data, max_length, min_length) -> bool:
         if max_length is not None and len(data) > max_length:

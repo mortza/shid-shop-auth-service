@@ -1232,3 +1232,38 @@ def delete_all_active_sessions(clean_data: dict) -> dict:
     ret['message'] = DEL_ALL_SESSION_MESSAGE
     ret['status'] = OK_STATUS
     return ret
+
+
+@application.route('/user/is-login', methods=['POST'], endpoint='user_is_login')
+@is_login(adata.user_is_login_rules)
+def user_is_login(clean_data: dict) -> dict:
+    """
+    {
+        'request URL': '/user/is-login',
+        'methods': 'POST',
+        'Query Params': {
+            'input': {
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
+                },
+            },
+        },
+        'Response': {
+            "code": '',
+            "information": {
+                'output': {}
+            }
+        },
+        "message": "",
+        "status": ""
+    }
+    """
+    ret = dict()
+    ret['data'] = {}
+    ret['code'] = USER_IS_LOGIN_CODE
+    ret['message'] = USER_IS_LOGIN_MESSAGE
+    ret['status'] = OK_STATUS
+    return ret
