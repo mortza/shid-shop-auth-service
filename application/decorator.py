@@ -9,7 +9,7 @@ def cleanData(rule):
         @wraps(func)
         def decorated_function():
             try:
-                i_c_data = adata.input(request.args, rule)
+                i_c_data = adata.input(request.form, rule)
                 res = func(i_c_data)
                 o_c_data = adata.output(res, rule)
                 return make_response(
@@ -31,7 +31,7 @@ def cleanData(rule):
                             'message': ex.args,
                             'information': '',
                         }),
-                    500)
+                    200)
 
         return decorated_function
 
@@ -43,7 +43,7 @@ def is_login(rule):
         @wraps(func)
         def decorated_function():
             try:
-                i_c_data = adata.input(request.args, rule)
+                i_c_data = adata.input(request.form, rule)
                 auth_token = i_c_data['auth_token']
                 redis_value = redis_client.get(auth_token)
                 if redis_value:
@@ -89,7 +89,7 @@ def is_login(rule):
                             'message': ex.args,
                             'information': '',
                         }),
-                    500)
+                    200)
 
         return decorated_function
 
