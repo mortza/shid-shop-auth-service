@@ -237,7 +237,9 @@ class UserRepository(UserRepositoryBase):
         uid = clean_data['user_id']
         usr = db.session.query(User).filter(User.id == uid).first()
         ret = dict()
-        ret['addresses'] = usr.address_list
+        page = int(clean_data['page']) if 'page' in clean_data else 1
+        ret['addresses'] = self._jsonify_pagination(
+            db.session.query(Address).filter(Address.user_id == usr.id).paginate(page))
         return ret
 
     def active_session(self, clean_data: dict) -> dict:
@@ -245,6 +247,19 @@ class UserRepository(UserRepositoryBase):
         usr = db.session.query(User).filter(User.id == uid).first()
         ret = dict()
         ret['sessions'] = usr.session_list
+        return ret
+
+    def _jsonify_pagination(self, data):
+        ret = {
+            'has_next': data.has_next,
+            'next_num': data.next_num,
+            'page': data.page,
+            'pages': data.pages,
+            'per_page': data.per_page,
+            'prev_num': data.prev_num,
+            'total': data.total,
+            'items': [i.to_dict for i in data.items]
+        }
         return ret
 
     def delete_session(self, clean_data: dict) -> None:

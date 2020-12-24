@@ -90,7 +90,12 @@ class AcceptableData:
             'configurations': {
                 'nullable': True,
                 'type': 'json'
-            }, }
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
     # login
     login_rules = {
@@ -140,6 +145,10 @@ class AcceptableData:
             'configurations': {
                 'nullable': True,
                 'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
             },
         }
     }
@@ -540,6 +549,12 @@ class AcceptableData:
                 'max_length': None,
                 'min_length': None,
                 'type': 'str'
+            },
+            'page': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'int'
             },
         },
         'output': {

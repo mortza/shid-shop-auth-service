@@ -1267,3 +1267,4 @@ def user_is_login(clean_data: dict) -> dict:
     ret['message'] = USER_IS_LOGIN_MESSAGE
     ret['status'] = OK_STATUS
     return ret
+

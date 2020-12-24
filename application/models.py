@@ -14,8 +14,9 @@ class Address(db.Model):
 
     @property
     def to_dict(self):
+        import json
         return {
-            'address', self.address
+            'address': json.loads(self.address)
         }
 
     def __str__(self):
@@ -107,11 +108,14 @@ class User(db.Model):
         if attributes is not None:
             for key, value in attributes.items():
                 setattr(self, key, value)
+        from uuid import uuid4
+        setattr(self, 'uuid', str(uuid4()))
         self._join_date = datetime.datetime.utcnow()
         self.last_password_hash = self.password
 
     # required
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    uuid = db.Column(db.String(50))
     role = db.Column(db.String(16), nullable=False, default='')
     real_or_legal = db.Column(db.String(16), nullable=False, default='')
     phone_number = db.Column(db.String(16), unique=True, nullable=False, default='09123456789')
@@ -155,6 +159,7 @@ class User(db.Model):
     @property
     def to_dict(self):
         return {
+            'uuid': self.uuid,
             'role': self.role,
             'real_or_legal': self.real_or_legal,
             'phone_number': self.phone_number,
