@@ -1,6 +1,7 @@
 from repository.users import UserRepositoryBase
 from application.models import User, Token, VCode, Address
 from application import db
+import json
 
 
 class UserRepository(UserRepositoryBase):
@@ -86,6 +87,8 @@ class UserRepository(UserRepositoryBase):
         pass
 
     def register(self, clean_data: dict) -> None:
+        if 'email' not in clean_data:
+            clean_data['email'] = None
         old_usr = self._user_is_exist(email=clean_data['email'], phone_number=clean_data['phone_number'])
         if old_usr is not None:
             raise Exception('The user has already registered with this profile.')
@@ -96,6 +99,7 @@ class UserRepository(UserRepositoryBase):
 
     def update(self, clean_data: dict, key: str):
         uid = clean_data['user_id']
+        device_info = clean_data['auth_token_info_extract']['device_information']
         usr = db.session.query(User).filter(User.id == uid).first()
         if key == 'update_phone_number':
             usr.phone_number_is_validated = False
@@ -127,14 +131,21 @@ class UserRepository(UserRepositoryBase):
         from werkzeug.security import check_password_hash
         if not check_password_hash(usr.password, clean_data['password']):
             raise Exception('The password is incorrect.')
-        # todo add device info
-        tkn = Token(user_id=usr.id, device_info=usr.to_dict)
+        if 'device_information' not in clean_data:
+            clean_data['device_information'] = '{}'
+        info = usr.to_dict
+        info['device_information'] = clean_data['device_information']
+        info['user_id'] = usr.id
+        info = json.dumps(info)
+        tkn = Token(user_id=usr.id, info=info)
         db.session.add(tkn)
         db.session.commit()
         ret = usr.to_dict
         ret['auth_token'] = tkn.token
         ret['data'] = ret
-        return tkn, ret
+        rkey = tkn.token
+        rvalue = tkn.information
+        return rkey, rvalue, ret
 
     def logout(self, clean_data: dict) -> Token:
         tkn = clean_data['auth_token']

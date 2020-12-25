@@ -47,7 +47,10 @@ def is_login(rule):
                 auth_token = i_c_data['auth_token']
                 redis_value = redis_client.get(auth_token)
                 if redis_value:
-                    i_c_data['user_id'] = int(redis_value)
+                    import json
+                    auth_token_info_extract = json.loads(redis_value)
+                    i_c_data['user_id'] = auth_token_info_extract['user_id']
+                    i_c_data['auth_token_info_extract'] = auth_token_info_extract
                     res = func(i_c_data)
                     o_c_data = adata.output(res, rule)
                     return make_response(
@@ -63,9 +66,11 @@ def is_login(rule):
                 else:
                     auth_token = db.session.query(Token).filter(Token.token == auth_token).first()
                     if auth_token is not None:
-                        # user = db.session.query(User).filter(User.id == auth_token.user_id).first()
-                        redis_client.set(auth_token.token, auth_token.user_id) #json.dumps(user.to_dict))
-                        i_c_data['user_id'] = auth_token.user_id
+                        redis_client.set(auth_token.token, auth_token.information)
+                        import json
+                        auth_token_info_extract = json.loads(auth_token.information)
+                        i_c_data['user_id'] = auth_token_info_extract['user_id']
+                        i_c_data['auth_token_info_extract'] = auth_token_info_extract
                         res = func(i_c_data)
                         o_c_data = adata.output(res, rule)
                         return make_response(

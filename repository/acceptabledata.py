@@ -43,7 +43,7 @@ class AcceptableData:
                 'nullable': True,
                 'max_length': None,
                 'min_length': None,
-                'type': 'str'
+                'type': 'json'
             },
             'answers': {
                 'nullable': True,
@@ -58,44 +58,7 @@ class AcceptableData:
                 'type': 'json'
             },
         },
-        'output': {
-            'auth_token': {
-                'nullable': False,
-                'type': 'str'
-            },
-            'role': {
-                'nullable': False,
-                'type': 'str'
-            },
-            'real_or_legal': {
-                'nullable': False,
-                'type': 'str'
-            },
-            'phone_number': {
-                'nullable': False,
-                'type': 'snum'
-            },
-            'email': {
-                'nullable': True,
-                'type': 'email'
-            },
-            'user_information': {
-                'nullable': True,
-                'type': 'json'
-            },
-            'company_information': {
-                'nullable': True,
-                'type': 'str'
-            },
-            'configurations': {
-                'nullable': True,
-                'type': 'json'
-            },
-            'uuid': {
-                'nullable': True,
-                'type': 'str'
-            },
-        }
+        'output': {}
     }
     # login
     login_rules = {
@@ -111,6 +74,12 @@ class AcceptableData:
                 'max_length': None,
                 'min_length': 8,
                 'type': 'str'
+            },
+            'device_information': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
             },
         },
         'output': {
@@ -629,7 +598,40 @@ class AcceptableData:
                 'type': 'str'
             },
         },
-        'output': {},
+        'output': {
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
 
     @staticmethod

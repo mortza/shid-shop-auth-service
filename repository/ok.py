@@ -2,7 +2,7 @@ OK_STATUS = 'OK'
 NOK_STATUS = 'NOK'
 
 SIGNUP_CODE = 270
-SIGNUP_MESSAGE = 'Registration completed successfully and user login done.'
+SIGNUP_MESSAGE = 'Registration completed successfully.'
 
 LOGIN_CODE = 271
 LOGIN_MESSAGE = 'User login done.'

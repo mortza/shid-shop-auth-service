@@ -1,5 +1,6 @@
 from . import db
 import datetime
+import json
 
 
 class Address(db.Model):
@@ -10,13 +11,12 @@ class Address(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    address = db.Column(db.JSON)
+    address = db.Column(db.JSON, default='{}')
 
     @property
     def to_dict(self):
-        import json
         return {
-            'address': json.loads(self.address)
+            "address": json.loads(self.address)
         }
 
     def __str__(self):
@@ -30,28 +30,34 @@ class Address(db.Model):
 
 
 class Token(db.Model):
-    def __init__(self, user_id: int, device_info: dict):
-        self.user_id = user_id
+    def __init__(self, user_id: int, info: dict):
+        setattr(self, 'user_id', user_id)
+        setattr(self, 'information', info)
+
         import string
         import random
+
         s = ''.join(random.choices(string.ascii_uppercase + string.digits, k=50))
+
         from datetime import datetime
+
         now = datetime.now().time()
         t = '{}{}{}'.format(user_id, now, s)
+
         import hashlib
-        self.token = hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest()
-        self.device_information = device_info
+
+        setattr(self, 'token', hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest())
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    token = db.Column(db.String(512), nullable=False, default='')
-    device_information = db.Column(db.JSON)
+    token = db.Column(db.String(512), nullable=False)
+    information = db.Column(db.JSON)
 
     @property
     def to_dict(self):
         return {
-            'token': self.token,
-            'device-information': self.device_information,
+            "token": self.token,
+            "device-information": json.loads(self.device_information),
         }
 
     def __str__(self):
@@ -68,14 +74,14 @@ class Token(db.Model):
 
 class VCode(db.Model):
     def __init__(self, user_id):
-        self.user_id = user_id
+        setattr(self, 'user_id', user_id)
 
         from random import randint
         from datetime import datetime, timedelta
 
-        self.v_code_ph = randint(1000, 9999)
-        self.v_code_e = randint(10000, 99999)
-        self.validity_date = datetime.now() + timedelta(minutes=10)
+        setattr(self, 'v_code_ph', randint(1000, 9999))
+        setattr(self, 'v_code_e', randint(10000, 99999))
+        setattr(self, 'validity_date', datetime.now() + timedelta(minutes=10))
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -86,9 +92,9 @@ class VCode(db.Model):
     @property
     def to_dict(self):
         return {
-            'verify_code_for_phone_number': self.v_code_ph,
-            'verify_code_for_email': self.v_code_e,
-            'validity_date': self.validity_date,
+            "verify_code_for_phone_number": self.v_code_ph,
+            "verify_code_for_email": self.v_code_e,
+            "validity_date": self.validity_date,
         }
 
     def __str__(self):
@@ -109,18 +115,18 @@ class User(db.Model):
             for key, value in attributes.items():
                 setattr(self, key, value)
         from uuid import uuid4
-        setattr(self, 'uuid', str(uuid4()))
-        self._join_date = datetime.datetime.utcnow()
+        setattr(self, 'uid', str(uuid4()))
+        setattr(self, '_join_date', datetime.datetime.utcnow())
         self.last_password_hash = self.password
 
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    uuid = db.Column(db.String(50))
-    role = db.Column(db.String(16), nullable=False, default='')
-    real_or_legal = db.Column(db.String(16), nullable=False, default='')
-    phone_number = db.Column(db.String(16), unique=True, nullable=False, default='09123456789')
-    phone_number_is_validated = db.Column(db.Boolean, default=False, nullable=False)
-    _password = db.Column(db.String(256), nullable=False, default='')
+    uid = db.Column(db.String(50), unique=True)
+    role = db.Column(db.String(16), nullable=False)
+    real_or_legal = db.Column(db.String(16), nullable=False)
+    phone_number = db.Column(db.String(16), unique=True)
+    phone_number_is_validated = db.Column(db.Boolean, default=False)
+    _password = db.Column(db.String(256), nullable=False)
 
     @property
     def password(self):
@@ -134,10 +140,10 @@ class User(db.Model):
     _join_date = db.Column(db.DateTime)
 
     # optional
-    email = db.Column(db.String(128), unique=True, default='example@example.example')
-    email_is_validated = db.Column(db.Boolean, default=False, nullable=False)
-    user_information = db.Column(db.JSON)
-    company_information = db.Column(db.JSON)
+    email = db.Column(db.String(128), unique=True)
+    email_is_validated = db.Column(db.Boolean, default=False)
+    user_information = db.Column(db.JSON, default='{}')
+    company_information = db.Column(db.JSON, default='{}')
     # extra
     last_password_hash = db.Column(db.String(127))
     _answers = db.Column(db.String(1024))
@@ -151,7 +157,8 @@ class User(db.Model):
         from werkzeug.security import generate_password_hash
         self._answers = generate_password_hash(value)
 
-    configurations = db.Column(db.JSON)
+    configurations = db.Column(db.JSON, default='{}')
+
     addresses = db.relationship('Address', backref='user', cascade="all, delete", lazy=True)
     tokens = db.relationship('Token', backref='user', cascade="all, delete", lazy=True)
     v_codes = db.relationship('VCode', backref='user', cascade="all, delete", lazy=True)
@@ -159,7 +166,7 @@ class User(db.Model):
     @property
     def to_dict(self):
         return {
-            'uuid': self.uuid,
+            'uuid': self.uid,
             'role': self.role,
             'real_or_legal': self.real_or_legal,
             'phone_number': self.phone_number,
@@ -167,9 +174,9 @@ class User(db.Model):
             'join_date': str(self._join_date),
             'email': self.email,
             'email_is_validated': self.email_is_validated,
-            'user_information': self.user_information,
-            'company_information': self.company_information,
-            'configurations': self.configurations
+            'user_information': json.loads(self.user_information),
+            'company_information': json.loads(self.company_information),
+            'configurations': json.loads(self.configurations),
         }
 
     @property

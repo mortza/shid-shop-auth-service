@@ -72,39 +72,7 @@ def register(clean_data: dict) -> dict:
         'Response': {
             "code": '',
             "information": {
-                'output': {
-                    'auth_token': {
-                        'nullable': False,
-                        'type': 'str'
-                    },
-                    'role': {
-                        'nullable': False,
-                        'type': 'str'
-                    },
-                    'real_or_legal': {
-                        'nullable': False,
-                        'type': 'str'
-                    },
-                    'phone_number': {
-                        'nullable': False,
-                        'type': 'snum'
-                    },
-                    'email': {
-                        'nullable': True,
-                        'type': 'email'
-                    },
-                    'user_information': {
-                        'nullable': True,
-                        'type': 'json'
-                    },
-                    'company_information': {
-                        'nullable': True,
-                        'type': 'str'
-                    },
-                    'configurations': {
-                        'nullable': True,
-                        'type': 'json'
-                    }, }
+                'output': {}
             }
         },
         "message": "",
@@ -113,18 +81,12 @@ def register(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     repo.register(clean_data)
-    # todo sms
-    # todo email
-    tkn, ret = repo.login(
-        {
-            'user_name': clean_data['phone_number'],
-            'password': clean_data['password'],
-        }
-    )
-    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
-    ret['code'] = SIGNUP_CODE
-    ret['message'] = SIGNUP_MESSAGE
-    ret['status'] = OK_STATUS
+    ret = {
+        'data': {},
+        'code': SIGNUP_CODE,
+        'message': SIGNUP_MESSAGE,
+        'status': OK_STATUS
+    }
     return ret
 
 
@@ -148,6 +110,12 @@ def login(clean_data: dict) -> dict:
                     'max_length': None,
                     'min_length': 8,
                     'type': 'str'
+                },
+                'device_information': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'json'
                 },
             },
         },
@@ -195,8 +163,8 @@ def login(clean_data: dict) -> dict:
     }
     """
     repo = UserRepository()
-    tkn, ret = repo.login(clean_data)
-    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    rkey, rval, ret = repo.login(clean_data)
+    redis_client.set(rkey, rval)
     ret['code'] = LOGIN_CODE
     ret['message'] = LOGIN_MESSAGE
     ret['status'] = OK_STATUS
@@ -233,11 +201,12 @@ def logout(clean_data: dict) -> dict:
     repo = UserRepository()
     tkn = repo.logout(clean_data)
     redis_client.delete(tkn)
-    ret = dict()
-    ret['data'] = {}
-    ret['code'] = LOGOUT_CODE
-    ret['message'] = LOGOUT_MESSAGE
-    ret['status'] = OK_STATUS
+    ret = {
+        'data': {},
+        'code': LOGOUT_CODE,
+        'message': LOGOUT_MESSAGE,
+        'status': OK_STATUS
+    }
     return ret
 
 
@@ -311,13 +280,14 @@ def update_password(clean_data: dict) -> dict:
     tkns, user_name = repo.update(clean_data, 'update_password')
     for tkn in tkns:
         redis_client.delete(tkn.token)
-    tkn, ret = repo.login(
+    rkey, rval, ret = repo.login(
         {
             'user_name': user_name,
             'password': clean_data['password'],
+            'device_information': clean_data['auth_token_info_extract']['device_information']
         }
     )
-    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    redis_client.set(rkey, rval)
     ret['code'] = UPDATE_PASSWORD_CODE
     ret['message'] = UPDATE_PASSWORD_MESSAGE
     ret['status'] = OK_STATUS
@@ -695,8 +665,14 @@ def recovery_by_last_password(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     repo.page_recovery(clean_data, 'recovery_by_last_password')
-    tkn, ret = repo.login({'user_name': clean_data['user_name'], 'password': clean_data['last_password']})
-    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    rkey, rval, ret = repo.login(
+        {
+            'user_name': clean_data['user_name'],
+            'password': clean_data['last_password'],
+            'device_information': clean_data['auth_token_info_extract']['device_information']
+        }
+    )
+    redis_client.set(rkey, rval)
     ret['code'] = RECOVERY_BY_LAST_PASSWORD_CODE
     ret['message'] = RECOVERY_BY_LAST_PASSWORD_MESSAGE
     ret['status'] = OK_STATUS
@@ -771,8 +747,14 @@ def recovery_by_answers(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.page_recovery(clean_data, 'recovery_by_answers')
-    tkn, ret = repo.login({'user_name': res['user_name'], 'password': res['temporary_password']})
-    redis_client.set(tkn.token, tkn.user_id)  # todo :: str({'user_id': tkn.user_id, 'device_info': ret}))
+    rkey, rval, ret = repo.login(
+        {
+            'user_name': res['user_name'],
+            'password': res['temporary_password'],
+            'device_information': clean_data['auth_token_info_extract']['device_information']
+        }
+    )
+    redis_client.set(rkey, rval)
     ret['code'] = RECOVERY_BY_ANSWERS_CODE
     ret['message'] = RECOVERY_BY_ANSWERS_MESSAGE
     ret['status'] = OK_STATUS
@@ -1055,11 +1037,12 @@ def add_address(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     repo.add_address(clean_data)
-    ret = dict()
-    ret['data'] = {}
-    ret['code'] = ADD_ADDRESS_CODE
-    ret['message'] = ADD_ADDRESS_MESSAGE
-    ret['status'] = OK_STATUS
+    ret = {
+        'data': {},
+        'code': ADD_ADDRESS_CODE,
+        'message': ADD_ADDRESS_MESSAGE,
+        'status': OK_STATUS
+    }
     return ret
 
 
@@ -1099,11 +1082,12 @@ def get_addresses(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.get_addresses(clean_data)
-    ret = dict()
-    ret['data'] = res
-    ret['code'] = GET_ADDRESSES_CODE
-    ret['message'] = GET_ADDRESSES_MESSAGE
-    ret['status'] = OK_STATUS
+    ret = {
+        'data': res,
+        'code': GET_ADDRESSES_CODE,
+        'message': GET_ADDRESSES_MESSAGE,
+        'status': OK_STATUS
+    }
     return ret
 
 
@@ -1261,10 +1245,10 @@ def user_is_login(clean_data: dict) -> dict:
         "status": ""
     }
     """
-    ret = dict()
-    ret['data'] = {}
-    ret['code'] = USER_IS_LOGIN_CODE
-    ret['message'] = USER_IS_LOGIN_MESSAGE
-    ret['status'] = OK_STATUS
+    ret = {
+        'data': clean_data['auth_token_info_extract'],
+        'code': USER_IS_LOGIN_CODE,
+        'message': USER_IS_LOGIN_MESSAGE,
+        'status': OK_STATUS
+    }
     return ret
-
