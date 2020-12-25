@@ -80,9 +80,9 @@ def register(clean_data: dict) -> dict:
     }
     """
     repo = UserRepository()
-    repo.register(clean_data)
+    t = repo.register(clean_data)
     ret = {
-        'data': {},
+        'data': t,
         'code': SIGNUP_CODE,
         'message': SIGNUP_MESSAGE,
         'status': OK_STATUS
