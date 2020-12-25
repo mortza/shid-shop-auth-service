@@ -91,7 +91,7 @@ class UserRepository(UserRepositoryBase):
             clean_data['email'] = None
         old_usr = self._user_is_exist(email=clean_data['email'], phone_number=clean_data['phone_number'])
         if old_usr is not None:
-            raise Exception('user exist with uuid: {}'.format(old_usr.uuid))
+            raise Exception('user exist with uuid: {}'.format(old_usr.uid))
         usr = User(clean_data)
         db.session.add(usr)
         db.session.commit()
