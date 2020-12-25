@@ -86,7 +86,7 @@ class UserRepository(UserRepositoryBase):
     def _create_list() -> dict:
         pass
 
-    def register(self, clean_data: dict) -> None:
+    def register(self, clean_data: dict):
         if 'email' not in clean_data:
             clean_data['email'] = None
         old_usr = self._user_is_exist(email=clean_data['email'], phone_number=clean_data['phone_number'])

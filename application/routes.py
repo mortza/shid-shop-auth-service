@@ -72,7 +72,14 @@ def register(clean_data: dict) -> dict:
         'Response': {
             "code": '',
             "information": {
-                'output': {}
+                'output': {
+                     'uuid': {
+                            'nullable': False,
+                            'max_length': None,
+                            'min_length': None,
+                            'type': 'str'
+                        }
+                }
             }
         },
         "message": "",
@@ -81,6 +88,7 @@ def register(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     t = repo.register(clean_data)
+    print(t)
     ret = {
         'data': t,
         'code': SIGNUP_CODE,

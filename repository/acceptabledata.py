@@ -58,7 +58,14 @@ class AcceptableData:
                 'type': 'json'
             },
         },
-        'output': {}
+        'output': {
+            'uuid': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        }
     }
     # login
     login_rules = {
@@ -698,6 +705,7 @@ class AcceptableData:
 
         rules = rules['output']
         info = dict()
+        print(rules)
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
                 err_message = "from acceptabledata.AcceptableData.output:" \
