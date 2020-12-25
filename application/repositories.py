@@ -96,6 +96,7 @@ class UserRepository(UserRepositoryBase):
         db.session.add(usr)
         db.session.commit()
         db.create_all()
+        return usr.to_dict
 
     def update(self, clean_data: dict, key: str):
         uid = clean_data['user_id']
