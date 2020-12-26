@@ -100,7 +100,7 @@ class UserRepository(UserRepositoryBase):
 
     def update(self, clean_data: dict, key: str):
         uid = clean_data['user_id']
-        device_info = clean_data['auth_token_info_extract']['device_information']
+        # device_info = clean_data['auth_token_info_extract']['device_information']
         usr = db.session.query(User).filter(User.id == uid).first()
         if key == 'update_phone_number':
             usr.phone_number_is_validated = False
@@ -122,8 +122,18 @@ class UserRepository(UserRepositoryBase):
             usr.company_information = clean_data['company_information']
         elif key == 'update_configurations':
             usr.configurations = clean_data['configurations']
+
+        info = usr.to_dict
+        info['user_id'] = usr.id
+        tkns = db.session.query(Token).filter(Token.user_id == usr.id).all()
+        for tkn in tkns:
+            t_info = json.loads(tkn.information)
+            device_info = t_info['device_information']
+            info['device_information'] = device_info
+            h_info = json.dumps(info)
+            tkn.information = h_info
         db.session.commit()
-        return usr.to_dict
+        return usr.to_dict, tkns
 
     def login(self, clean_data: dict) -> [Token, dict]:
         usr = UserRepository._user_is_exist(user_name=clean_data['user_name'])
