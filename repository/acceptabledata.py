@@ -156,7 +156,44 @@ class AcceptableData:
                 'type': 'snum'
             },
         },
-        'output': {}
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
     password_update_rules = {
         'input': {
@@ -206,6 +243,10 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'json'
             },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
         }
     }
     email_update_rules = {
@@ -223,7 +264,44 @@ class AcceptableData:
                 'type': 'email'
             },
         },
-        'output': {}
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
     user_info_update_rules = {
         'input': {
@@ -240,7 +318,44 @@ class AcceptableData:
                 'type': 'json'
             },
         },
-        'output': {}
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
     company_info_update_rules = {
         'input': {
@@ -257,7 +372,44 @@ class AcceptableData:
                 'type': 'str'
             },
         },
-        'output': {}
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
     configurations_update_rules = {
         'input': {
@@ -274,7 +426,44 @@ class AcceptableData:
                 'type': 'json'
             },
         },
-        'output': {}
+        'output': {
+            'auth_token': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'type': 'str'
+            },
+            'configurations': {
+                'nullable': True,
+                'type': 'json'
+            },
+            'uuid': {
+                'nullable': True,
+                'type': 'str'
+            },
+        }
     }
     # forget password
     recovery_by_sms_rules = {
