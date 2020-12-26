@@ -73,3 +73,6 @@ DEL_ALL_SESSION_MESSAGE = 'Delete all active session completed.'
 USER_IS_LOGIN_CODE = 293
 USER_IS_LOGIN_MESSAGE = 'The user is logged in.'
 
+GET_USERS_CODE = 294
+GET_USER_MESSAGE = 'List of users sent.'
+

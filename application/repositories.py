@@ -264,6 +264,13 @@ class UserRepository(UserRepositoryBase):
             db.session.query(Address).filter(Address.user_id == usr.id).paginate(page))
         return ret
 
+    def get_users(self, clean_data: dict) -> dict:
+        ret = dict()
+        page = int(clean_data['page']) if 'page' in clean_data else 1
+        ret['users'] = self._jsonify_pagination(
+            db.session.query(User).paginate(page))
+        return ret
+
     def active_session(self, clean_data: dict) -> dict:
         uid = clean_data['user_id']
         usr = db.session.query(User).filter(User.id == uid).first()

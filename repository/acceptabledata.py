@@ -563,6 +563,32 @@ class AcceptableData:
         },
     }
 
+    # get users
+    get_users_rules = {
+        'input': {
+            'auth_token': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'page': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'int'
+            },
+        },
+        'output': {
+            'users': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+        },
+    }
+
     # del session
     delete_sessions_rules = {
         'input': {
@@ -652,6 +678,26 @@ class AcceptableData:
     @staticmethod
     def _is_the_type_correct(data, type) -> bool:
         # todo create check input type function
+        # if type == 'str':
+        #     return type(data) == str
+        # if type == 'snum':
+        #     pass
+        # if type == 'email':
+        #     try:
+        #         if type(data) != str:
+        #             return False
+        #         a, b = data.split('@')
+        #         b, c = b.split('.')
+        #         if a is None or b is None or c is None:
+        #             return False
+        #         return True
+        #     except:
+        #         return False
+        # if type == 'JSON':
+        #     import json
+        #     return type(json.loads(data)) == dict
+        # else:
+        #     raise Exception('Type name is not define.')
         return True
 
     def input(self, data: dict, rules: dict) -> dict:
@@ -705,7 +751,6 @@ class AcceptableData:
 
         rules = rules['output']
         info = dict()
-        print(rules)
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
                 err_message = "from acceptabledata.AcceptableData.output:" \
