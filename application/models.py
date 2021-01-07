@@ -1,7 +1,6 @@
 from . import db
 import datetime
 import json
-import uuid
 
 
 class Address(db.Model):
@@ -11,7 +10,6 @@ class Address(db.Model):
                 setattr(self, key, value)
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    guid = db.Column(db.String(512), unique=False, default=uuid.uuid4)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     address = db.Column(db.JSON, default='{}')
 
@@ -51,7 +49,6 @@ class Token(db.Model):
         setattr(self, 'token', hashlib.sha512(bytes(t, encoding='utf-8')).hexdigest())
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    guid = db.Column(db.String(512), unique=False, default=uuid.uuid4)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     token = db.Column(db.String(512), nullable=False)
     information = db.Column(db.JSON)
@@ -87,7 +84,6 @@ class VCode(db.Model):
         setattr(self, 'validity_date', datetime.now() + timedelta(minutes=10))
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    guid = db.Column(db.String(512), unique=False, default=uuid.uuid4)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     v_code_ph = db.Column(db.String(4))
     v_code_e = db.Column(db.String(6))
@@ -125,7 +121,6 @@ class User(db.Model):
 
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    guid = db.Column(db.String(512), unique=False, default=uuid.uuid4)
     uid = db.Column(db.String(50), unique=True)
     role = db.Column(db.String(16), nullable=False)
     real_or_legal = db.Column(db.String(16), nullable=False)
