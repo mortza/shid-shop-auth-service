@@ -183,14 +183,14 @@ class User(db.Model):
     def address_list(self):
         addresses = dict()
         for address in self.addresses:
-            addresses['address id = {}'.format(address.id)] = address.address
+            addresses['{}'.format(address.id)] = address.address
         return addresses
 
     @property
     def session_list(self):
         sessions = dict()
         for session in self.tokens:
-            sessions['token = {}'.format(session.token)] = session.device_information
+            sessions['{}'.format(session.token)] = session.information
         return sessions
 
     def __str__(self):
