@@ -51,7 +51,6 @@ class UserRepository(UserRepositoryBase):
     @staticmethod
     def _page_recovery_by_send_sms(user: User) -> dict:
 
-        print(user)
         user.set_sms_num
         if not user.check_send_sms:
             raise Exception(LIMITED_SMS_RECOVERY_MESSAGE)

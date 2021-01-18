@@ -835,7 +835,7 @@ def send_vcode_ph(clean_data: dict) -> dict:
     repo = UserRepository()
     res = repo.create_verify_code(clean_data, 'for_phone')
     # todo send sms: phone number : ret['phone_number'] and sms text : ret['vcode_for_phone']
-    print(res['vcode_for_phone'])
+    # print(res['vcode_for_phone'])
     ret = dict()
     ret['vcode_expiration_date'] = res['vcode_expiration_date']
     ret['data'] = ret
