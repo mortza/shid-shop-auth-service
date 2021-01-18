@@ -3,6 +3,8 @@ from flask import request, make_response, jsonify
 from application import redis_client, db, adata
 from application.models import Token
 
+from repository.ok import *
+
 
 def cleanData(rule):
     def decorator(func):
@@ -12,13 +14,21 @@ def cleanData(rule):
                 i_c_data = adata.input(request.form, rule)
                 res = func(i_c_data)
                 o_c_data = adata.output(res, rule)
+                data = {}
+                if 'information' in o_c_data:
+                    if 'auth_token' in o_c_data['information']:
+                        data['token'] = o_c_data['information']['auth_token']
+                        del o_c_data['information']['auth_token']
+                    if len(o_c_data['information']) > 0:
+                        data['user'] = o_c_data['information']
                 return make_response(
                     jsonify(
                         {
-                            'status': o_c_data['status'],
-                            'code': o_c_data['code'],
+                            # 'status': o_c_data['status'],
+                            # 'code': o_c_data['code'],
+                            'succsess': True,
                             'message': o_c_data['message'],
-                            'information': o_c_data['information'],
+                            'data': data,
                         }),
                     200,
                 )
@@ -26,10 +36,11 @@ def cleanData(rule):
                 return make_response(
                     jsonify(
                         {
-                            'status': 'error',
-                            'code': '-1',
+                            # 'status': 'error',
+                            # 'code': '-1',
+                            'succsess': False,
                             'message': ex.args,
-                            'information': '',
+                            'data': '',
                         }),
                     200)
 
@@ -53,13 +64,24 @@ def is_login(rule):
                     i_c_data['auth_token_info_extract'] = auth_token_info_extract
                     res = func(i_c_data)
                     o_c_data = adata.output(res, rule)
+                    data = {}
+                    if 'information' in o_c_data:
+                        if 'auth_token' in o_c_data['information']:
+                            data['token'] = o_c_data['information']['auth_token']
+                            del o_c_data['information']['auth_token']
+                        if len(o_c_data['information']) > 0:
+                            data['user'] = o_c_data['information']
+                        if 'users' in o_c_data['information']:
+                            del data['user']
+                            data = o_c_data['information']['users']
                     return make_response(
                         jsonify(
                             {
-                                'status': o_c_data['status'],
-                                'code': o_c_data['code'],
+                                # 'status': o_c_data['status'],
+                                # 'code': o_c_data['code'],
+                                'succsess': True,
                                 'message': o_c_data['message'],
-                                'information': o_c_data['information'],
+                                'data': data,
                             }),
                         200,
                     )
@@ -73,26 +95,35 @@ def is_login(rule):
                         i_c_data['auth_token_info_extract'] = auth_token_info_extract
                         res = func(i_c_data)
                         o_c_data = adata.output(res, rule)
+                        data = {}
+                        if 'information' in o_c_data:
+                            if 'auth_token' in o_c_data['information']:
+                                data['token'] = o_c_data['information']['auth_token']
+                                del o_c_data['information']['auth_token']
+                            if len(o_c_data['information']) > 0:
+                                data['user'] = o_c_data['information']
                         return make_response(
                             jsonify(
                                 {
-                                    'status': o_c_data['status'],
-                                    'code': o_c_data['code'],
+                                    # 'status': o_c_data['status'],
+                                    # 'code': o_c_data['code'],
+                                    'succsess': True,
                                     'message': o_c_data['message'],
-                                    'information': o_c_data['information'],
+                                    'data': data,
                                 }),
                             200,
                         )
                     else:
-                        raise Exception('Token is not define.')
+                        raise Exception(TOKEN_NOT_DEFINE_MESSAGE)
             except Exception as ex:
                 return make_response(
                     jsonify(
                         {
-                            'status': 'error',
-                            'code': '-1',
+                            # 'status': 'error',
+                            # 'code': '-1',
+                            'succsess': False,
                             'message': ex.args,
-                            'information': '',
+                            'data': '',
                         }),
                     200)
 

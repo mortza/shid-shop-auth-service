@@ -1,4 +1,4 @@
-from application.models import User, Token, VCode, Address
+from application.models import User, Token, VCode
 
 
 class UserRepositoryBase:
@@ -30,11 +30,11 @@ class UserRepositoryBase:
     def check_code(self, clean_data: dict, key: str) -> bool:
         pass
 
-    def add_address(self, clean_data: dict) -> dict:
-        pass
-
-    def get_addresses(self, clean_data: dict) -> dict:
-        pass
+    # def add_address(self, clean_data: dict) -> dict:
+    #     pass
+    #
+    # def get_addresses(self, clean_data: dict) -> dict:
+    #     pass
 
     def active_session(self, clean_data: dict) -> dict:
         pass

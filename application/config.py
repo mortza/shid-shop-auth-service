@@ -1,7 +1,6 @@
 """Flask configuration variables."""
 from os import environ, path
 
-
 BASEDIR = path.abspath(path.dirname(__file__))
 
 
@@ -17,6 +16,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    MAIL_SERVER = environ.get("MAIL_SERVER")
+    MAIL_PORT = environ.get("MAIL_PORT")
+    MAIL_USERNAME = environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = environ.get("MAIL_PASSWORD")
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
 
     # Redis
     REDIS_URL = environ.get('REDIS_URL')

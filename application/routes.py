@@ -2,6 +2,10 @@ from application import application, redis_client, adata
 from application.repositories import UserRepository
 from repository.ok import *
 from application.decorator import cleanData, is_login
+from flask_mail import Mail, Message
+
+from application import mail
+import os
 
 
 @application.route('/register', methods=['POST'])
@@ -15,79 +19,87 @@ def register(clean_data: dict) -> dict:
             'input': {
                 'role': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'max_length': 16,
+                    'type': 'string'
                 },
                 'real_or_legal': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'max_length': 16,
+                    'type': 'string'
                 },
                 'phone_number': {
                     'nullable': False,
                     'max_length': 11,
                     'min_length': 11,
-                    'type': 'snum'
+                    'type': 'numerical string'
                 },
                 'password': {
                     'nullable': False,
-                    'max_length': None,
+                    'max_length': 128,
                     'min_length': 8,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'email': {
                     'nullable': True,
-                    'max_length': None,
-                    'min_length': None,
+                    'max_length': 128,
                     'type': 'email'
                 },
                 'user_information': {
                     'nullable': True,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
                 'company_information': {
                     'nullable': True,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'answers': {
                     'nullable': True,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
                 'configurations': {
                     'nullable': True,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
             },
         },
         'Response': {
-            "code": '',
             "information": {
                 'output': {
-                     'uuid': {
-                            'nullable': False,
-                            'max_length': None,
-                            'min_length': None,
-                            'type': 'str'
-                        }
-                }
+                    'uuid': {
+                        'nullable': True,
+                        'type': 'string'
+                    },
+                    'role': {
+                        'nullable': False,
+                        'type': 'string'
+                    },
+                    'real_or_legal': {
+                        'nullable': False,
+                        'type': 'string'
+                    },
+                    'phone_number': {
+                        'nullable': False,
+                        'type': 'numerical string'
+                    },
+                    'email': {
+                        'nullable': True,
+                        'type': 'email'
+                    },
+                    'user_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
+                    'company_information': {
+                        'nullable': True,
+                        'type': 'json'
+                    },
             }
         },
-        "message": "",
-        "status": ""
     }
     """
     repo = UserRepository()
     t = repo.register(clean_data)
+
     ret = {
         'data': t,
         'code': SIGNUP_CODE,
@@ -108,43 +120,36 @@ def login(clean_data: dict) -> dict:
             'input': {
                 'user_name': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'password': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': 8,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'device_information': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
             },
         },
         'Response': {
-            "code": '',
             "information": {
                 'output': {
                     'auth_token': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'role': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'real_or_legal': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'phone_number': {
                         'nullable': False,
-                        'type': 'snum'
+                        'type': 'numerical string'
                     },
                     'email': {
                         'nullable': True,
@@ -156,7 +161,7 @@ def login(clean_data: dict) -> dict:
                     },
                     'company_information': {
                         'nullable': True,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'configurations': {
                         'nullable': True,
@@ -164,9 +169,7 @@ def login(clean_data: dict) -> dict:
                     },
                 }
             }
-        },
-        "message": "",
-        "status": ""
+        }
     }
     """
     repo = UserRepository()
@@ -189,9 +192,7 @@ def logout(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -228,15 +229,13 @@ def update_password(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'password': {
                     'nullable': False,
-                    'max_length': None,
+                    'max_length': 128,
                     'min_length': 8,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -246,19 +245,19 @@ def update_password(clean_data: dict) -> dict:
                 'output': {
                     'auth_token': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'role': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'real_or_legal': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'phone_number': {
                         'nullable': False,
-                        'type': 'snum'
+                        'type': 'numerical string'
                     },
                     'email': {
                         'nullable': True,
@@ -270,7 +269,7 @@ def update_password(clean_data: dict) -> dict:
                     },
                     'company_information': {
                         'nullable': True,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'configurations': {
                         'nullable': True,
@@ -312,15 +311,13 @@ def update_phone_number(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'phone_number': {
                     'nullable': False,
                     'max_length': 11,
                     'min_length': 11,
-                    'type': 'snum'
+                    'type': 'numerical string'
                 },
             },
         },
@@ -359,14 +356,10 @@ def update_email(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'email': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'email'
                 },
             },
@@ -405,14 +398,10 @@ def update_user_information(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'user_information': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
             },
@@ -428,6 +417,7 @@ def update_user_information(clean_data: dict) -> dict:
     }
     """
     repo = UserRepository()
+
     res, tkns = repo.update(clean_data, 'update_user_information')
     res['auth_token'] = clean_data['auth_token']
     for tkn in tkns:
@@ -451,15 +441,11 @@ def update_company_information(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'company_information': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -497,14 +483,10 @@ def update_configurations(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'configurations': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
             },
@@ -545,7 +527,7 @@ def recovery_by_send_sms(clean_data: dict) -> dict:
                     'nullable': False,
                     'max_length': 11,
                     'min_length': 11,
-                    'type': 'snum'
+                    'type': 'numerical string'
                 },
             },
         },
@@ -561,7 +543,7 @@ def recovery_by_send_sms(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.page_recovery(clean_data, 'recovery_by_send_sms')
-    print(res)
+    # print(res)
     # todo send sms. phone number : res['user_name'] and sms text : res['temporary_password']
     ret = dict()
     ret['data'] = dict()
@@ -582,8 +564,6 @@ def recovery_by_send_email(clean_data: dict) -> dict:
             'input': {
                 'email': {
                     'nullable': True,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'email'
                 },
             },
@@ -600,8 +580,15 @@ def recovery_by_send_email(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.page_recovery(clean_data, 'recovery_by_send_email')
-    print(res)
-    # todo send email. email address : res['user_name'] and email text : res['temporary_password']
+    # todo send email
+    # msg = Message(
+    #     'Temporary Password: {}'.format(res['temporary_password']),
+    #     sender=os.getenv('MAIL_SENDER'),
+    #     recipients=['{}'.format(res['user_name'])]
+    # )
+    # msg.body = os.getenv('MESSAGE_BODY')
+    # mail.send(msg)
+
     ret = dict()
     ret['data'] = dict()
     ret['code'] = RECOVERY_BY_SEND_EMAIL_CODE
@@ -621,15 +608,11 @@ def recovery_by_last_password(clean_data: dict) -> dict:
             'input': {
                 'user_name': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'last_password': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': 8,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -639,19 +622,19 @@ def recovery_by_last_password(clean_data: dict) -> dict:
                 'output': {
                     'auth_token': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'role': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'real_or_legal': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'phone_number': {
                         'nullable': False,
-                        'type': 'snum'
+                        'type': 'numerical string'
                     },
                     'email': {
                         'nullable': True,
@@ -663,7 +646,7 @@ def recovery_by_last_password(clean_data: dict) -> dict:
                     },
                     'company_information': {
                         'nullable': True,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'configurations': {
                         'nullable': True,
@@ -682,13 +665,26 @@ def recovery_by_last_password(clean_data: dict) -> dict:
         {
             'user_name': clean_data['user_name'],
             'password': clean_data['last_password'],
-            'device_information': clean_data['auth_token_info_extract']['device_information']
         }
     )
     redis_client.set(rkey, rval)
     ret['code'] = RECOVERY_BY_LAST_PASSWORD_CODE
     ret['message'] = RECOVERY_BY_LAST_PASSWORD_MESSAGE
     ret['status'] = OK_STATUS
+    return ret
+
+
+@application.route('/recovery-by/send-rand-question', methods=['POST'], endpoint='send_rand_question')
+@cleanData(adata.rand_question_rules)
+def send_rand_question(clean_data: dict) -> dict:
+    repo = UserRepository()
+    rnd_question = repo.rand_question(clean_data)
+    ret = {
+        'data': rnd_question,
+        'code': RANDOM_QUESTION_SEND_CODE,
+        'message': RANDOM_QUESTION_SEND_MESSAGE,
+        'status': OK_STATUS
+    }
     return ret
 
 
@@ -703,14 +699,10 @@ def recovery_by_answers(clean_data: dict) -> dict:
             'input': {
                 'user_name': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'answers': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
                     'type': 'json'
                 },
             },
@@ -721,19 +713,19 @@ def recovery_by_answers(clean_data: dict) -> dict:
                 'output': {
                     'auth_token': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'role': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'real_or_legal': {
                         'nullable': False,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'phone_number': {
                         'nullable': False,
-                        'type': 'snum'
+                        'type': 'numerical string'
                     },
                     'email': {
                         'nullable': True,
@@ -745,7 +737,7 @@ def recovery_by_answers(clean_data: dict) -> dict:
                     },
                     'company_information': {
                         'nullable': True,
-                        'type': 'str'
+                        'type': 'string'
                     },
                     'configurations': {
                         'nullable': True,
@@ -764,7 +756,6 @@ def recovery_by_answers(clean_data: dict) -> dict:
         {
             'user_name': res['user_name'],
             'password': res['temporary_password'],
-            'device_information': clean_data['auth_token_info_extract']['device_information']
         }
     )
     redis_client.set(rkey, rval)
@@ -785,9 +776,7 @@ def delete_account(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -824,9 +813,7 @@ def send_vcode_ph(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -836,9 +823,7 @@ def send_vcode_ph(clean_data: dict) -> dict:
                 'output': {
                     'vcode_expiration_date': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
-                        'type': 'str'
+                        'type': 'string'
                     },
                 }
             }
@@ -871,9 +856,7 @@ def send_vcode_ea(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -883,9 +866,7 @@ def send_vcode_ea(clean_data: dict) -> dict:
                 'output': {
                     'vcode_expiration_date': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
-                        'type': 'str'
+                        'type': 'string'
                     },
                 }
             }
@@ -896,8 +877,15 @@ def send_vcode_ea(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.create_verify_code(clean_data, 'for_email')
-    # todo send email: email address : ret['email_address'] and sms text : ret['vcode_for_email']
-    print(res['vcode_for_email'])
+    # todo send email
+    # msg = Message(
+    #     'Verification code: {}'.format(res['vcode_for_email']),
+    #     sender=os.getenv('MAIL_SENDER'),
+    #     recipients=['{}'.format(res['email_address'])]
+    # )
+    # msg.body = os.getenv('MESSAGE_BODY')
+    # mail.send(msg)
+
     ret = dict()
     ret['vcode_expiration_date'] = res['vcode_expiration_date']
     ret['data'] = ret
@@ -918,15 +906,13 @@ def confirm_code_ph(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'vcode': {
                     'nullable': False,
                     'max_length': 5,
                     'min_length': 5,
-                    'type': 'snum'
+                    'type': 'numerical string'
                 }
             },
         },
@@ -936,9 +922,7 @@ def confirm_code_ph(clean_data: dict) -> dict:
                 'output': {
                     'code_review_status': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
-                        'type': 'str'
+                        'type': 'string'
                     },
                 }
             }
@@ -972,15 +956,13 @@ def confirm_code_ea(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'vcode': {
                     'nullable': False,
                     'max_length': 4,
                     'min_length': 4,
-                    'type': 'snum'
+                    'type': 'numerical string'
                 }
             },
         },
@@ -990,9 +972,7 @@ def confirm_code_ea(clean_data: dict) -> dict:
                 'output': {
                     'code_review_status': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
-                        'type': 'str'
+                        'type': 'string'
                     },
                 }
             }
@@ -1015,99 +995,89 @@ def confirm_code_ea(clean_data: dict) -> dict:
     return ret
 
 
-@application.route('/user/add-address', methods=['POST'], endpoint='add_address')
-@is_login(adata.add_address_rules)
-def add_address(clean_data: dict) -> dict:
-    """
-    {
-        'request URL': '/user/add-address',
-        'methods': 'POST',
-        'Query Params': {
-            'input': {
-                'auth_token': {
-                    'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
-                },
-                'address': {
-                    'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'json'
-                }
-            },
-        },
-        'Response': {
-            "code": '',
-            "information": {
-                'output': {}
-            }
-        },
-        "message": "",
-        "status": ""
-    }
-    """
-    repo = UserRepository()
-    repo.add_address(clean_data)
-    ret = {
-        'data': {},
-        'code': ADD_ADDRESS_CODE,
-        'message': ADD_ADDRESS_MESSAGE,
-        'status': OK_STATUS
-    }
-    return ret
-
-
-@application.route('/user/get-addresses', methods=['POST'], endpoint='get_addresses')
-@is_login(adata.get_addresses_rules)
-def get_addresses(clean_data: dict) -> dict:
-    """
-    {
-        'request URL': '/user/get-addresses',
-        'methods': 'POST',
-        'Query Params': {
-            'input': {
-                'auth_token': {
-                    'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
-                },
-                'page': {
-                    'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
-                }
-            },
-        },
-        'Response': {
-            "code": '',
-            "information": {
-                'output': {
-                    'addresses': {
-                        'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
-                        'type': 'json'
-                    }
-                }
-            }
-        },
-        "message": "",
-        "status": ""
-    }
-    """
-    repo = UserRepository()
-    res = repo.get_addresses(clean_data)
-    ret = {
-        'data': res,
-        'code': GET_ADDRESSES_CODE,
-        'message': GET_ADDRESSES_MESSAGE,
-        'status': OK_STATUS
-    }
-    return ret
+# @application.route('/user/add-address', methods=['POST'], endpoint='add_address')
+# @is_login(adata.add_address_rules)
+# def add_address(clean_data: dict) -> dict:
+#     """
+#     {
+#         'request URL': '/user/add-address',
+#         'methods': 'POST',
+#         'Query Params': {
+#             'input': {
+#                 'auth_token': {
+#                     'nullable': False,
+#                     'type': 'string'
+#                 },
+#                 'address': {
+#                     'nullable': False,
+#                     'type': 'json'
+#                 }
+#             },
+#         },
+#         'Response': {
+#             "code": '',
+#             "information": {
+#                 'output': {}
+#             }
+#         },
+#         "message": "",
+#         "status": ""
+#     }
+#     """
+#     repo = UserRepository()
+#     repo.add_address(clean_data)
+#     ret = {
+#         'data': {},
+#         'code': ADD_ADDRESS_CODE,
+#         'message': ADD_ADDRESS_MESSAGE,
+#         'status': OK_STATUS
+#     }
+#     return ret
+#
+#
+# @application.route('/user/get-addresses', methods=['POST'], endpoint='get_addresses')
+# @is_login(adata.get_addresses_rules)
+# def get_addresses(clean_data: dict) -> dict:
+#     """
+#     {
+#         'request URL': '/user/get-addresses',
+#         'methods': 'POST',
+#         'Query Params': {
+#             'input': {
+#                 'auth_token': {
+#                     'nullable': False,
+#                     'type': 'string'
+#                 },
+#                 'page': {
+#                     'nullable': False,
+#                     'type': 'string'
+#                 }
+#             },
+#         },
+#         'Response': {
+#             "code": '',
+#             "information": {
+#                 'output': {
+#                     'addresses': {
+#                         'nullable': False,
+#                         'type': 'json'
+#                     }
+#                 }
+#             }
+#         },
+#         "message": "",
+#         "status": ""
+#     }
+#     """
+#     repo = UserRepository()
+#     res = repo.get_addresses(clean_data)
+#     ret = {
+#         'data': res,
+#         'code': GET_ADDRESSES_CODE,
+#         'message': GET_ADDRESSES_MESSAGE,
+#         'status': OK_STATUS
+#     }
+#     return ret
 
 
 @application.route('/user/active-sessions', methods=['POST'], endpoint='active_session')
@@ -1121,9 +1091,7 @@ def active_session(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 }
             },
         },
@@ -1133,8 +1101,6 @@ def active_session(clean_data: dict) -> dict:
                 'output': {
                     'active_sessions': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
                         'type': 'json'
                     }
                 }
@@ -1165,15 +1131,11 @@ def delete_session(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
                 'session': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 }
             },
         },
@@ -1209,9 +1171,7 @@ def delete_all_active_sessions(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -1248,9 +1208,7 @@ def user_is_login(clean_data: dict) -> dict:
             'input': {
                 'auth_token': {
                     'nullable': False,
-                    'max_length': None,
-                    'min_length': None,
-                    'type': 'str'
+                    'type': 'string'
                 },
             },
         },
@@ -1284,10 +1242,14 @@ def get_users(clean_data: dict) -> dict:
             'input': {
                 'page': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
-                        'type': 'str'
+                        'type': 'string'
                     }
+                },
+                'auth_token': {
+                    'nullable': False,
+                    'max_length': None,
+                    'min_length': None,
+                    'type': 'str'
                 },
         },
         'Response': {
@@ -1296,8 +1258,6 @@ def get_users(clean_data: dict) -> dict:
                 'output': {
                     'users': {
                         'nullable': False,
-                        'max_length': None,
-                        'min_length': None,
                         'type': 'json'
                     }
                 }

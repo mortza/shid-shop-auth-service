@@ -3,30 +3,30 @@ import datetime
 import json
 
 
-class Address(db.Model):
-    def __init__(self, attributes=None):
-        if attributes is not None:
-            for key, value in attributes.items():
-                setattr(self, key, value)
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    address = db.Column(db.JSON, default='{}')
-
-    @property
-    def to_dict(self):
-        return {
-            "address": json.loads(self.address)
-        }
-
-    def __str__(self):
-        return "ID: {},\n" \
-               "User ID: {},\n" \
-               "Address: {},\n". \
-            format(self.id,
-                   self.user_id,
-                   self.address
-                   )
+# class Address(db.Model):
+#     def __init__(self, attributes=None):
+#         if attributes is not None:
+#             for key, value in attributes.items():
+#                 setattr(self, key, value)
+#
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+#     address = db.Column(db.JSON, default='{}')
+#
+#     @property
+#     def to_dict(self):
+#         return {
+#             "address": json.loads(self.address)
+#         }
+#
+#     def __str__(self):
+#         return "ID: {},\n" \
+#                "User ID: {},\n" \
+#                "Address: {},\n". \
+#             format(self.id,
+#                    self.user_id,
+#                    self.address
+#                    )
 
 
 class Token(db.Model):
@@ -81,7 +81,7 @@ class VCode(db.Model):
 
         setattr(self, 'v_code_ph', randint(1000, 9999))
         setattr(self, 'v_code_e', randint(10000, 99999))
-        setattr(self, 'validity_date', datetime.now() + timedelta(minutes=10))
+        setattr(self, 'validity_date', datetime.now() + timedelta(days=1))
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -146,22 +146,54 @@ class User(db.Model):
     company_information = db.Column(db.JSON, default='{}')
     # extra
     last_password_hash = db.Column(db.String(127))
-    _answers = db.Column(db.String(1024))
-
-    @property
-    def answers(self):
-        return self._answers
-
-    @answers.setter
-    def answers(self, value):
-        from werkzeug.security import generate_password_hash
-        self._answers = generate_password_hash(value)
 
     configurations = db.Column(db.JSON, default='{}')
 
-    addresses = db.relationship('Address', backref='user', cascade="all, delete", lazy=True)
+    # addresses = db.relationship('Address', backref='user', cascade="all, delete", lazy=True)
     tokens = db.relationship('Token', backref='user', cascade="all, delete", lazy=True)
     v_codes = db.relationship('VCode', backref='user', cascade="all, delete", lazy=True)
+
+    username = db.Column(db.String(64), unique=True)
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
+    national_id = db.Column(db.String(64), unique=True)
+    gender = db.Column(db.String(64))
+    birthday = db.Column(db.String(16))
+
+    company_name = db.Column(db.String(64), unique=True)
+    economic_code = db.Column(db.String(32), unique=True)
+    national_id_company_owner = db.Column(db.String(32), unique=True)
+    registration_id = db.Column(db.String(32), unique=True)
+
+    question_answring_1 = db.Column(db.JSON)
+    question_answring_2 = db.Column(db.JSON)
+    question_answring_3 = db.Column(db.JSON)
+    question_answring_4 = db.Column(db.JSON)
+    question_answring_5 = db.Column(db.JSON)
+
+    sms_num = db.Column(db.Integer(), default=0)
+    sms_num_deth_time = db.Column(db.DateTime)
+
+    @property
+    def set_sms_num(self):
+        import datetime
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(days=1)
+        self.sms_num = self.sms_num + 1
+        self.sms_num_deth_time = now + delta
+
+    @property
+    def check_send_sms(self):
+        import datetime
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(days=1)
+        if self.sms_num_deth_time < now:
+            self.sms_num = 0
+            self.sms_num_deth_time = now + delta
+            return True
+        if self.sms_num <= 2:
+            return True
+        return False
 
     @property
     def to_dict(self):
@@ -177,20 +209,30 @@ class User(db.Model):
             'user_information': json.loads(self.user_information),
             'company_information': json.loads(self.company_information),
             'configurations': json.loads(self.configurations),
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'national_id': self.national_id,
+            'gender': self.gender,
+            'birthday': self.birthday,
+            'company_name': self.company_name,
+            'economic_code': self.economic_code,
+            'national_id_company_owner': self.national_id_company_owner,
+            'registration_id': self.registration_id,
         }
 
-    @property
-    def address_list(self):
-        addresses = dict()
-        for address in self.addresses:
-            addresses['address id = {}'.format(address.id)] = address.address
-        return addresses
+    # @property
+    # def address_list(self):
+    #     addresses = dict()
+    #     for address in self.addresses:
+    #         addresses['{}'.format(address.id)] = address.address
+    #     return addresses
 
     @property
     def session_list(self):
         sessions = dict()
         for session in self.tokens:
-            sessions['token = {}'.format(session.token)] = session.device_information
+            sessions['{}'.format(session.token)] = session.information
         return sessions
 
     def __str__(self):
@@ -204,9 +246,7 @@ class User(db.Model):
                "User Information:{},\n" \
                "Company information: {},\n" \
                "Last Password: {},\n" \
-               "Answers: {},\n" \
                "Configurations: {},\n" \
-               "Addresses: {},\n" \
                "Tokens: {},\n" \
                "VCodes: {},\n". \
             format(self.id,
@@ -219,9 +259,8 @@ class User(db.Model):
                    self.user_information,
                    self.company_information,
                    self.last_password_hash,
-                   self.answers,
                    self.configurations,
-                   self.addresses,
+                   # self.addresses,
                    self.tokens,
-                   self.v_codes
+                   self.v_codes,
                    )

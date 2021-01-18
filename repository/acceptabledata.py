@@ -1,3 +1,6 @@
+from repository.ok import *
+
+
 class AcceptableData:
     # input rules
     # signup
@@ -30,6 +33,146 @@ class AcceptableData:
             'email': {
                 'nullable': True,
                 'max_length': None,
+                'min_length': 6,
+                'type': 'email'
+            },
+            'user_information': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+            'company_information': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+            'question_answring_1': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 1,
+                'type': 'json'
+            },
+            'question_answring_2': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 1,
+                'type': 'json'
+            },
+            'question_answring_3': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 1,
+                'type': 'json'
+            },
+            'question_answring_4': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 1,
+                'type': 'json'
+            },
+            'question_answring_5': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 1,
+                'type': 'json'
+            },
+            'configurations': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'json'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+        },
+        'output': {
+            'uuid': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'role': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'real_or_legal': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'phone_number': {
+                'nullable': False,
+                'max_length': 11,
+                'min_length': 11,
+                'type': 'snum'
+            },
+            'email': {
+                'nullable': True,
+                'max_length': None,
                 'min_length': None,
                 'type': 'email'
             },
@@ -45,25 +188,65 @@ class AcceptableData:
                 'min_length': None,
                 'type': 'json'
             },
-            'answers': {
-                'nullable': True,
-                'max_length': None,
-                'min_length': None,
-                'type': 'json'
-            },
-            'configurations': {
-                'nullable': True,
-                'max_length': None,
-                'min_length': None,
-                'type': 'json'
-            },
-        },
-        'output': {
-            'uuid': {
+            'username': {
                 'nullable': True,
                 'max_length': None,
                 'min_length': None,
                 'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -116,7 +299,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -125,6 +308,66 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -183,7 +426,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -192,6 +435,67 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -237,7 +541,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -246,6 +550,66 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -291,7 +655,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -300,6 +664,66 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -312,10 +736,40 @@ class AcceptableData:
                 'type': 'str'
             },
             'user_information': {
-                'nullable': False,
+                'nullable': True,
                 'max_length': None,
                 'min_length': None,
                 'type': 'json'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'str'
             },
         },
         'output': {
@@ -345,7 +799,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -354,6 +808,66 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -366,10 +880,34 @@ class AcceptableData:
                 'type': 'str'
             },
             'company_information': {
-                'nullable': False,
+                'nullable': True,
                 'max_length': None,
                 'min_length': None,
+                'type': 'json'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
                 'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': 3,
+                'type': 'snum'
             },
         },
         'output': {
@@ -399,7 +937,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -408,6 +946,66 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -453,7 +1051,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -462,6 +1060,66 @@ class AcceptableData:
             'uuid': {
                 'nullable': True,
                 'type': 'str'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -530,14 +1188,94 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
                 'type': 'json'
             },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
         }
     }
+
+    rand_question_rules = {
+        'input': {
+            'user_name': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+        'output': {
+            'question': {
+                'nullable': False,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+        },
+    }
+
     recovery_by_answers_rules = {
         'input': {
             'user_name': {
@@ -546,10 +1284,10 @@ class AcceptableData:
                 'min_length': None,
                 'type': 'str'
             },
-            'answers': {
+            'question_answring': {
                 'nullable': False,
                 'max_length': None,
-                'min_length': None,
+                'min_length': 1,
                 'type': 'json'
             },
         },
@@ -580,11 +1318,71 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
                 'type': 'json'
+            },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
             },
         }
     }
@@ -843,7 +1641,7 @@ class AcceptableData:
             },
             'company_information': {
                 'nullable': True,
-                'type': 'str'
+                'type': 'json'
             },
             'configurations': {
                 'nullable': True,
@@ -853,11 +1651,80 @@ class AcceptableData:
                 'nullable': True,
                 'type': 'str'
             },
+            'username': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'first_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'last_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'national_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'gender': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'birthday': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'company_name': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'str'
+            },
+            'economic_code': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'national_id_company_owner': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
+            'registration_id': {
+                'nullable': True,
+                'max_length': None,
+                'min_length': None,
+                'type': 'snum'
+            },
         }
     }
 
     @staticmethod
-    def _is_the_length_correct(data, max_length, min_length) -> bool:
+    def _is_the_length_correct(data, max_length, min_length, typ=None) -> bool:
+        if typ is 'json':
+            import json
+            data = json.loads(data)
+            if max_length is not None and len(data) > max_length:
+                return False
+            if min_length is not None and len(data) < min_length:
+                return False
+            return True
+
         if max_length is not None and len(data) > max_length:
             return False
         if min_length is not None and len(data) < min_length:
@@ -866,46 +1733,41 @@ class AcceptableData:
 
     @staticmethod
     def _is_the_type_correct(data, type) -> bool:
-        # todo create check input type function
-        # if type == 'str':
-        #     return type(data) == str
-        # if type == 'snum':
-        #     pass
-        # if type == 'email':
-        #     try:
-        #         if type(data) != str:
-        #             return False
-        #         a, b = data.split('@')
-        #         b, c = b.split('.')
-        #         if a is None or b is None or c is None:
-        #             return False
-        #         return True
-        #     except:
-        #         return False
-        # if type == 'JSON':
-        #     import json
-        #     return type(json.loads(data)) == dict
-        # else:
-        #     raise Exception('Type name is not define.')
-        return True
+        if type == 'str':
+            return isinstance(data, str)
+        if type == 'snum':
+            for d in data:
+                if d not in '1234567890':
+                    return False
+            return True
+        if type == 'email':
+            import re
+            regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+            if re.search(regex, data):
+                return True
+            else:
+                return False
+        if type == 'json':
+            import json
+            return isinstance(json.loads(data), dict)
+        else:
+            raise Exception(TYPE_NAME_IS_NOT_DEFINE_MESSAGE)
 
     def input(self, data: dict, rules: dict) -> dict:
         cd = dict()
         rules = rules['input']
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
-                err_message = "from acceptabledata.AcceptableData.input:" \
-                              " Input {} is not set.".format(key)
+                err_message = INPUT_NOT_SET_MESSAGE.format(key)
                 raise Exception(err_message)
             if key in data:
                 d = data[key]
-                if not self._is_the_length_correct(d, rules[key]['max_length'], rules[key]['min_length']):
-                    err_message = "from acceptabledata.AcceptableData.input:" \
-                                  " {} input length is not set correctly.".format(key)
+                if not self._is_the_length_correct(d, rules[key]['max_length'], rules[key]['min_length'],
+                                                   rules[key]['type']):
+                    err_message = INPUT_LENGTH_NOT_SET_MESSAGE.format(key)
                     raise Exception(err_message)
                 if not self._is_the_type_correct(d, rules[key]['type']):
-                    err_message = "from acceptabledata.AcceptableData.input:" \
-                                  " Input data type {} is not set correctly.".format(key)
+                    err_message = INPUT_TYPE_NOT_SET_MESSAGE.format(key)
                     raise Exception(err_message)
                 cd[key] = d
         return cd
@@ -915,35 +1777,32 @@ class AcceptableData:
         if 'status' in arguments:
             ret['status'] = arguments['status']
         else:
-            err_message = "from acceptabledata.AcceptableData.output:" \
-                          "'status' is not in arguments."
+            err_message = STATUS_NOT_SET_MESSAGE
             raise Exception(err_message)
 
         if 'message' in arguments:
             ret['message'] = arguments['message']
         else:
-            err_message = "from acceptabledata.AcceptableData.output:" \
-                          "'message' is not in arguments."
+            err_message = MESSAGE_NOT_SET_MESSAGE
+
             raise Exception(err_message)
         if 'code' in arguments:
             ret['code'] = arguments['code']
         else:
-            err_message = "from acceptabledata.AcceptableData.output:" \
-                          "'code' is not in arguments."
+            err_message = CODE_NOT_SET_MESSAGE
             raise Exception(err_message)
         if 'data' in arguments:
             data = arguments['data']
         else:
-            err_message = "from acceptabledata.AcceptableData.output:" \
-                          "'data' is not in arguments."
+            err_message = DATA_NOT_SET_MESSAGE
+
             raise Exception(err_message)
 
         rules = rules['output']
         info = dict()
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
-                err_message = "from acceptabledata.AcceptableData.output:" \
-                              " Output {} is not set.".format(key)
+                err_message = OUTPUT_NOT_SET_MESSAGE.format(key)
                 raise Exception(err_message)
             if key in data:
                 info[key] = data[key]

@@ -7,11 +7,21 @@ import os
 from flask_redis import FlaskRedis
 
 from repository.acceptabledata import AcceptableData
+from flask_mail import Mail, Message
 
 adata = AcceptableData()
 
 load_dotenv()
 application = Flask(__name__)
+mail = Mail(application)
+
+Config.MAIL_SERVER = os.getenv('MAIL_SERVER')
+Config.MAIL_PORT = os.getenv('MAIL_PORT')
+Config.MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+Config.MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+Config.MAIL_USE_TLS = False
+Config.MAIL_USE_SSL = True
+
 redis_client = FlaskRedis(application)
 
 if os.getenv('DB_TYPE') == 'sqlite':
@@ -27,4 +37,5 @@ elif os.getenv('DB_TYPE') == 'postgres':
 application.config.from_object(Config)
 
 db = SQLAlchemy(application)
+mail = Mail(application)
 migrate = Migrate(application, db)
