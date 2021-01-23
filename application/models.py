@@ -3,32 +3,6 @@ import datetime
 import json
 
 
-# class Address(db.Model):
-#     def __init__(self, attributes=None):
-#         if attributes is not None:
-#             for key, value in attributes.items():
-#                 setattr(self, key, value)
-#
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-#     address = db.Column(db.JSON, default='{}')
-#
-#     @property
-#     def to_dict(self):
-#         return {
-#             "address": json.loads(self.address)
-#         }
-#
-#     def __str__(self):
-#         return "ID: {},\n" \
-#                "User ID: {},\n" \
-#                "Address: {},\n". \
-#             format(self.id,
-#                    self.user_id,
-#                    self.address
-#                    )
-
-
 class Token(db.Model):
     def __init__(self, user_id: int, info: dict):
         setattr(self, 'user_id', user_id)
@@ -181,6 +155,7 @@ class User(db.Model):
         delta = datetime.timedelta(days=1)
         self.sms_num = self.sms_num + 1
         self.sms_num_deth_time = now + delta
+        self.save()
 
     @property
     def check_send_sms(self):
@@ -190,9 +165,12 @@ class User(db.Model):
         if self.sms_num_deth_time < now:
             self.sms_num = 0
             self.sms_num_deth_time = now + delta
+            self.save()
             return True
         if self.sms_num <= 2:
+            self.save()
             return True
+        self.save()
         return False
 
     @property

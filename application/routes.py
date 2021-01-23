@@ -543,7 +543,7 @@ def recovery_by_send_sms(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.page_recovery(clean_data, 'recovery_by_send_sms')
-    # print(res)
+    print(res)
     # todo send sms. phone number : res['user_name'] and sms text : res['temporary_password']
     ret = dict()
     ret['data'] = dict()
@@ -993,91 +993,6 @@ def confirm_code_ea(clean_data: dict) -> dict:
     ret['message'] = CONFIRM_VCODE_FOR_EMAIL_ADDRESS_MESSAGE
     ret['status'] = OK_STATUS
     return ret
-
-
-# @application.route('/user/add-address', methods=['POST'], endpoint='add_address')
-# @is_login(adata.add_address_rules)
-# def add_address(clean_data: dict) -> dict:
-#     """
-#     {
-#         'request URL': '/user/add-address',
-#         'methods': 'POST',
-#         'Query Params': {
-#             'input': {
-#                 'auth_token': {
-#                     'nullable': False,
-#                     'type': 'string'
-#                 },
-#                 'address': {
-#                     'nullable': False,
-#                     'type': 'json'
-#                 }
-#             },
-#         },
-#         'Response': {
-#             "code": '',
-#             "information": {
-#                 'output': {}
-#             }
-#         },
-#         "message": "",
-#         "status": ""
-#     }
-#     """
-#     repo = UserRepository()
-#     repo.add_address(clean_data)
-#     ret = {
-#         'data': {},
-#         'code': ADD_ADDRESS_CODE,
-#         'message': ADD_ADDRESS_MESSAGE,
-#         'status': OK_STATUS
-#     }
-#     return ret
-#
-#
-# @application.route('/user/get-addresses', methods=['POST'], endpoint='get_addresses')
-# @is_login(adata.get_addresses_rules)
-# def get_addresses(clean_data: dict) -> dict:
-#     """
-#     {
-#         'request URL': '/user/get-addresses',
-#         'methods': 'POST',
-#         'Query Params': {
-#             'input': {
-#                 'auth_token': {
-#                     'nullable': False,
-#                     'type': 'string'
-#                 },
-#                 'page': {
-#                     'nullable': False,
-#                     'type': 'string'
-#                 }
-#             },
-#         },
-#         'Response': {
-#             "code": '',
-#             "information": {
-#                 'output': {
-#                     'addresses': {
-#                         'nullable': False,
-#                         'type': 'json'
-#                     }
-#                 }
-#             }
-#         },
-#         "message": "",
-#         "status": ""
-#     }
-#     """
-#     repo = UserRepository()
-#     res = repo.get_addresses(clean_data)
-#     ret = {
-#         'data': res,
-#         'code': GET_ADDRESSES_CODE,
-#         'message': GET_ADDRESSES_MESSAGE,
-#         'status': OK_STATUS
-#     }
-#     return ret
 
 
 @application.route('/user/active-sessions', methods=['POST'], endpoint='active_session')

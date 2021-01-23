@@ -85,7 +85,7 @@ class AcceptableData:
                 'type': 'json'
             },
             'username': {
-                'nullable': True,
+                'nullable': False,
                 'max_length': None,
                 'min_length': 3,
                 'type': 'str'
