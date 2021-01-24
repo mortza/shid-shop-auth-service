@@ -1,14 +1,13 @@
-from application import application, redis_client, adata
+from application import application, redis_client, adata, limiter, RATE_LIMIT, mail
 from application.repositories import UserRepository
 from repository.ok import *
 from application.decorator import cleanData, is_login
 from flask_mail import Mail, Message
-
-from application import mail
 import os
 
 
 @application.route('/register', methods=['POST'])
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.signup_rules)
 def register(clean_data: dict) -> dict:
     """
@@ -110,6 +109,7 @@ def register(clean_data: dict) -> dict:
 
 
 @application.route('/login', methods=['POST'])
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.login_rules)
 def login(clean_data: dict) -> dict:
     """
@@ -182,6 +182,7 @@ def login(clean_data: dict) -> dict:
 
 
 @application.route('/logout', methods=['POST'], endpoint='logout')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.logout_rules)
 def logout(clean_data: dict) -> dict:
     """
@@ -219,6 +220,7 @@ def logout(clean_data: dict) -> dict:
 
 
 @application.route('/user/update/password', methods=['POST'], endpoint='update_password')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.password_update_rules)
 def update_password(clean_data: dict) -> dict:
     """
@@ -301,6 +303,7 @@ def update_password(clean_data: dict) -> dict:
 
 
 @application.route('/user/update/phone-number', methods=['POST'], endpoint='update_phone_number')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.phone_number_update_rules)
 def update_phone_number(clean_data: dict) -> dict:
     """
@@ -346,6 +349,7 @@ def update_phone_number(clean_data: dict) -> dict:
 
 
 @application.route('/user/update/email', methods=['POST'], endpoint='update_email')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.email_update_rules)
 def update_email(clean_data: dict) -> dict:
     """
@@ -388,6 +392,7 @@ def update_email(clean_data: dict) -> dict:
 
 
 @application.route('/user/update/user-information', methods=['POST'], endpoint='update_user_information')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.user_info_update_rules)
 def update_user_information(clean_data: dict) -> dict:
     """
@@ -431,6 +436,7 @@ def update_user_information(clean_data: dict) -> dict:
 
 
 @application.route('/user/update/company-information', methods=['POST'], endpoint='update_company_information')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.company_info_update_rules)
 def update_company_information(clean_data: dict) -> dict:
     """
@@ -473,6 +479,7 @@ def update_company_information(clean_data: dict) -> dict:
 
 
 @application.route('/user/update/configurations', methods=['POST'], endpoint='update_configurations')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.configurations_update_rules)
 def update_configurations(clean_data: dict) -> dict:
     """
@@ -515,6 +522,7 @@ def update_configurations(clean_data: dict) -> dict:
 
 
 @application.route('/recovery-by/send-sms', methods=['POST'], endpoint='recovery_by_send_sms')
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.recovery_by_sms_rules)
 def recovery_by_send_sms(clean_data: dict) -> dict:
     """
@@ -554,6 +562,7 @@ def recovery_by_send_sms(clean_data: dict) -> dict:
 
 
 @application.route('/recovery-by/send-email', methods=['POST'], endpoint='recovery_by_send_email')
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.recovery_by_email_rules)
 def recovery_by_send_email(clean_data: dict) -> dict:
     """
@@ -598,6 +607,7 @@ def recovery_by_send_email(clean_data: dict) -> dict:
 
 
 @application.route('/recovery-by/last-password', methods=['POST'], endpoint='recovery_by_last_password')
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.recovery_by_last_password_rules)
 def recovery_by_last_password(clean_data: dict) -> dict:
     """
@@ -675,6 +685,7 @@ def recovery_by_last_password(clean_data: dict) -> dict:
 
 
 @application.route('/recovery-by/send-rand-question', methods=['POST'], endpoint='send_rand_question')
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.rand_question_rules)
 def send_rand_question(clean_data: dict) -> dict:
     repo = UserRepository()
@@ -689,6 +700,7 @@ def send_rand_question(clean_data: dict) -> dict:
 
 
 @application.route('/recovery-by/answers', methods=['POST'], endpoint='recovery_by_answers')
+@limiter.limit(RATE_LIMIT)
 @cleanData(adata.recovery_by_answers_rules)
 def recovery_by_answers(clean_data: dict) -> dict:
     """
@@ -766,6 +778,7 @@ def recovery_by_answers(clean_data: dict) -> dict:
 
 
 @application.route('/user/delete-account', methods=['POST'], endpoint='delete_account')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.delete_account_rules)
 def delete_account(clean_data: dict) -> dict:
     """
@@ -803,6 +816,7 @@ def delete_account(clean_data: dict) -> dict:
 
 
 @application.route('/register/vcode/send-sms', methods=['POST'], endpoint='send_vcode_ph')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.send_vcode_phone_number_rules)
 def send_vcode_ph(clean_data: dict) -> dict:
     """
@@ -846,6 +860,7 @@ def send_vcode_ph(clean_data: dict) -> dict:
 
 
 @application.route('/register/vcode/send-email', methods=['POST'], endpoint='send_vcode_ea')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.email_vcode_email_address_rules)
 def send_vcode_ea(clean_data: dict) -> dict:
     """
@@ -896,6 +911,7 @@ def send_vcode_ea(clean_data: dict) -> dict:
 
 
 @application.route('/register/vcode/send-sms/confirm', methods=['POST'], endpoint='confirm_code_ph')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.confirm_vcode_phone_number_rules)
 def confirm_code_ph(clean_data: dict) -> dict:
     """
@@ -946,6 +962,7 @@ def confirm_code_ph(clean_data: dict) -> dict:
 
 
 @application.route('/register/vcode/send-email/confirm', methods=['POST'], endpoint='confirm_code_ea')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.confirm_vcode_email_address_rules)
 def confirm_code_ea(clean_data: dict) -> dict:
     """
@@ -996,6 +1013,7 @@ def confirm_code_ea(clean_data: dict) -> dict:
 
 
 @application.route('/user/active-sessions', methods=['POST'], endpoint='active_session')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.get_sessions_rules)
 def active_session(clean_data: dict) -> dict:
     """
@@ -1036,6 +1054,7 @@ def active_session(clean_data: dict) -> dict:
 
 
 @application.route('/user/delete-session', methods=['POST'], endpoint='delete_session')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.delete_sessions_rules)
 def delete_session(clean_data: dict) -> dict:
     """
@@ -1076,6 +1095,7 @@ def delete_session(clean_data: dict) -> dict:
 
 
 @application.route('/user/delete-all-active-sessions', methods=['POST'], endpoint='delete_all_active_sessions')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.delete_all_sessions_rules)
 def delete_all_active_sessions(clean_data: dict) -> dict:
     """
@@ -1113,6 +1133,7 @@ def delete_all_active_sessions(clean_data: dict) -> dict:
 
 
 @application.route('/user/is-login', methods=['POST'], endpoint='user_is_login')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.user_is_login_rules)
 def user_is_login(clean_data: dict) -> dict:
     """
@@ -1147,6 +1168,7 @@ def user_is_login(clean_data: dict) -> dict:
 
 
 @application.route('/user/get-users', methods=['POST'], endpoint='users')
+@limiter.limit(RATE_LIMIT)
 @is_login(adata.get_users_rules)
 def get_users(clean_data: dict) -> dict:
     """

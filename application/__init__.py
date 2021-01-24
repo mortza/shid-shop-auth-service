@@ -9,11 +9,15 @@ from flask_redis import FlaskRedis
 from repository.acceptabledata import AcceptableData
 from flask_mail import Mail, Message
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 adata = AcceptableData()
 
 load_dotenv()
 application = Flask(__name__)
 mail = Mail(application)
+
 
 Config.MAIL_SERVER = os.getenv('MAIL_SERVER')
 Config.MAIL_PORT = os.getenv('MAIL_PORT')
@@ -21,6 +25,9 @@ Config.MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 Config.MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 Config.MAIL_USE_TLS = False
 Config.MAIL_USE_SSL = True
+
+RATE_LIMIT = os.getenv('RATE_LIMIT')
+
 
 redis_client = FlaskRedis(application)
 
@@ -39,3 +46,9 @@ application.config.from_object(Config)
 db = SQLAlchemy(application)
 mail = Mail(application)
 migrate = Migrate(application, db)
+
+limiter = Limiter(
+    application,
+    key_func=get_remote_address,
+    default_limits=["2 per minute", "1 per second"],
+)
