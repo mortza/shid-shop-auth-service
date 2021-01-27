@@ -5,7 +5,7 @@ from flask import Flask
 from dotenv import load_dotenv
 import os
 from flask_redis import FlaskRedis
-
+import logging
 from repository.acceptabledata import AcceptableData
 from flask_mail import Mail, Message
 
@@ -18,7 +18,6 @@ load_dotenv()
 application = Flask(__name__)
 mail = Mail(application)
 
-
 Config.MAIL_SERVER = os.getenv('MAIL_SERVER')
 Config.MAIL_PORT = os.getenv('MAIL_PORT')
 Config.MAIL_USERNAME = os.getenv('MAIL_USERNAME')
@@ -27,7 +26,6 @@ Config.MAIL_USE_TLS = False
 Config.MAIL_USE_SSL = True
 
 RATE_LIMIT = os.getenv('RATE_LIMIT')
-
 
 redis_client = FlaskRedis(application)
 
@@ -52,3 +50,5 @@ limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["2 per minute", "1 per second"],
 )
+
+logging.basicConfig('app.log', level=logging.DEBUG)

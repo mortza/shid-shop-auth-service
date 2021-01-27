@@ -1,4 +1,10 @@
 import os
+import logging
+from dotenv import load_dotenv
+
+load_dotenv()
+logging.debug(os.getenv('MESSAGE_LAGUEAGE_CHOICES'))
+load_dotenv()
 
 if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'persian':
     OK_STATUS = 'OK'
