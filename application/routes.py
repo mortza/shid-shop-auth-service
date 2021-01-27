@@ -97,11 +97,12 @@ def register(clean_data: dict) -> dict:
     }
     """
     repo = UserRepository()
+    print(clean_data)
     t = repo.register(clean_data)
 
     ret = {
         'data': t,
-        'code': SIGNUP_CODE,
+        'code': 270, # SIGNUP_CODE,
         'message': SIGNUP_MESSAGE,
         'status': OK_STATUS
     }

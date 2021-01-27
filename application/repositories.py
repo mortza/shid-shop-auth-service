@@ -15,6 +15,7 @@ class UserRepository(UserRepositoryBase):
         if user_name is None and \
                 phone_number is None and \
                 email is None:
+            print(6456465)
             raise Exception(ENTER_USERNAME_MESSAGE)
         elif phone_number is not None and \
                 email is None:
@@ -36,15 +37,15 @@ class UserRepository(UserRepositoryBase):
         return db.session.query(User). \
             filter(or_(User.username == user_name,
                        User.username == phone_number,
-                       User.username == email,
+                       # User.username == email,
 
                        User.phone_number == user_name,
                        User.phone_number == phone_number,
-                       User.phone_number == email,
+                       # User.phone_number == email,
 
-                       User.email == user_name,
-                       User.email == phone_number,
-                       User.email == email,
+                       # User.email == user_name,
+                       # User.email == phone_number,
+                       # User.email == email,
                        )
                    ).first()
 
@@ -128,6 +129,7 @@ class UserRepository(UserRepositoryBase):
         if 'email' not in clean_data:
             clean_data['email'] = None
         old_usr = self._user_is_exist(email=clean_data['email'], phone_number=clean_data['phone_number'])
+        print(old_usr)
         if old_usr is not None:
             raise Exception(USER_EXIST_WITH_UUID_MESSAGE.format(old_usr.uid))
         usr = User(clean_data)
