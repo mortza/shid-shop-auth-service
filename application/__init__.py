@@ -51,4 +51,4 @@ limiter = Limiter(
     default_limits=["2 per minute", "1 per second"],
 )
 
-logging.basicConfig('app.log', level=logging.DEBUG)
+logging.basicConfig(filename='app.log', level=logging.DEBUG)
