@@ -15,6 +15,7 @@ from flask_limiter.util import get_remote_address
 adata = AcceptableData()
 
 load_dotenv()
+logging.basicConfig(filename='app.log', filemode='a', level=logging.DEBUG)
 application = Flask(__name__)
 mail = Mail(application)
 
@@ -50,5 +51,3 @@ limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["2 per minute", "1 per second"],
 )
-
-logging.basicConfig(filename='app.log', level=logging.DEBUG)

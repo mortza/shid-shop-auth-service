@@ -97,7 +97,6 @@ def register(clean_data: dict) -> dict:
     }
     """
     repo = UserRepository()
-    print(clean_data)
     t = repo.register(clean_data)
 
     ret = {
@@ -552,7 +551,6 @@ def recovery_by_send_sms(clean_data: dict) -> dict:
     """
     repo = UserRepository()
     res = repo.page_recovery(clean_data, 'recovery_by_send_sms')
-    print(res)
     # todo send sms. phone number : res['user_name'] and sms text : res['temporary_password']
     ret = dict()
     ret['data'] = dict()
