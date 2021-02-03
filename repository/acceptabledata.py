@@ -10,7 +10,7 @@ class AcceptableData:
                 'nullable': False,
                 'max_length': None,
                 'min_length': None,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -156,7 +156,7 @@ class AcceptableData:
                 'nullable': False,
                 'max_length': None,
                 'min_length': None,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -279,7 +279,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -406,7 +406,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -521,7 +521,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -635,7 +635,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -779,7 +779,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -917,7 +917,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -1031,7 +1031,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -1168,7 +1168,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -1298,7 +1298,7 @@ class AcceptableData:
             },
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -1621,7 +1621,7 @@ class AcceptableData:
         'output': {
             'role': {
                 'nullable': False,
-                'type': 'str'
+                'type': 'json'
             },
             'real_or_legal': {
                 'nullable': False,
@@ -1742,14 +1742,19 @@ class AcceptableData:
             return True
         if type == 'email':
             import re
-            regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+            regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,5}$'
+            _data = data.lower()
             if re.search(regex, data):
                 return True
             else:
                 return False
         if type == 'json':
-            import json
-            return isinstance(json.loads(data), dict)
+            try:
+                import json
+                return isinstance(json.loads(data), dict)
+            except Exception:
+                return False
+
         else:
             raise Exception(TYPE_NAME_IS_NOT_DEFINE_MESSAGE)
 
@@ -1758,16 +1763,19 @@ class AcceptableData:
         rules = rules['input']
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
-                err_message = INPUT_NOT_SET_MESSAGE.format(key)
+                err_message = [INPUT_NOT_SET_MESSAGE, key]
                 raise Exception(err_message)
             if key in data:
                 d = data[key]
+                if key == 'role' and not self._is_the_type_correct(d, rules[key]['type']):
+                    d = '{ "' + data[key] + '":"True"}'
                 if not self._is_the_length_correct(d, rules[key]['max_length'], rules[key]['min_length'],
                                                    rules[key]['type']):
-                    err_message = INPUT_LENGTH_NOT_SET_MESSAGE.format(key)
+                    err_message = [INPUT_LENGTH_NOT_SET_MESSAGE, key]
                     raise Exception(err_message)
+
                 if not self._is_the_type_correct(d, rules[key]['type']):
-                    err_message = INPUT_TYPE_NOT_SET_MESSAGE.format(key)
+                    err_message = [INPUT_TYPE_NOT_SET_MESSAGE, key]
                     raise Exception(err_message)
                 cd[key] = d
         return cd
@@ -1802,7 +1810,7 @@ class AcceptableData:
         info = dict()
         for key in rules.keys():
             if key not in data and not rules[key]['nullable']:
-                err_message = OUTPUT_NOT_SET_MESSAGE.format(key)
+                err_message = [OUTPUT_NOT_SET_MESSAGE, key]
                 raise Exception(err_message)
             if key in data:
                 info[key] = data[key]

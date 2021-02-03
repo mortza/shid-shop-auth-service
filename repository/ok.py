@@ -93,7 +93,7 @@ if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'persian':
 
     ANSWER_WRONG_MESSAGE = 'پاسخ اشتباه است.'
 
-    USER_EXIST_WITH_UUID_MESSAGE = 'کاربر موجود است و uuid آن برابر است با {}'
+    USER_EXIST_WITH_UUID_MESSAGE = 'کاربر موجود است و مشخصه ی آن برابر است با:'
 
     # USERNAME_NOT_REGISTER_MESSAGE = 'کاربری با این نام کاربری ثبت نام نکرده است.'
     USERNAME_NOT_REGISTER_MESSAGE = 'نام کاربری با کلمه عبور مطابقت ندارد.'
@@ -112,15 +112,15 @@ if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'persian':
 
     ENTER_USERNAME_MESSAGE = 'کلمه عبور یا شماره تلفن ویا ایمیل آدرس وارد کنید.'
 
-    INPUT_NOT_SET_MESSAGE = " ورودی {} تنظیم نشده است."
+    INPUT_NOT_SET_MESSAGE = " ورودی زیر تنظیم نشده است."
 
-    INPUT_LENGTH_NOT_SET_MESSAGE = "طول ورودی {} صحیح نمی باشد."
-    INPUT_TYPE_NOT_SET_MESSAGE = " نوع ورودی {} صحیح نمی باشد."
+    INPUT_LENGTH_NOT_SET_MESSAGE = "طول ورودی زیر صحیح نمی باشد."
+    INPUT_TYPE_NOT_SET_MESSAGE = " نوع ورودی زیر صحیح نمی باشد."
     STATUS_NOT_SET_MESSAGE = "'status' وارد نشده است."
     MESSAGE_NOT_SET_MESSAGE = "'message' وارد نشده است."
     CODE_NOT_SET_MESSAGE = "'code' وارد نشده است."
     DATA_NOT_SET_MESSAGE = "'data' وارد نشده است."
-    OUTPUT_NOT_SET_MESSAGE = " خروجی {} تنظیم نشده است."
+    OUTPUT_NOT_SET_MESSAGE = " خروجی زیر تنظیم نشده است."
     TYPE_NAME_IS_NOT_DEFINE_MESSAGE = 'نوع داده ای فرستاده شده صحیح نمی باشد.'
     RANDOM_QUESTION_SEND_MESSAGE = 'پرسش رندوم ارسال شد.'
     RANDOM_QUESTION_SEND_CODE = 220
@@ -129,6 +129,8 @@ if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'persian':
     LIMITED_SMS_RECOVERY_MESSAGE = "شما بیشتر از حد مجاز از بازیابی رمز عبور با استفاده از اس ام اس استفاده نموده " \
                                    "اید. در صورت امکان برای بازیابی رمز عبور از روش های دیگر استفاده کنید و در صورتی " \
                                    "که مایل هستید از این روش استفاده کنید ۲۴ ساعت دیگر دوباره امتحان کنید. "
+
+    UNIQUE_CONSTRAINT_FAILED = 'کاربری با فیلد زیر قبلا ثبت نام شده است.'
 
 if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'eng':
     OK_STATUS = 'OK'
@@ -217,7 +219,7 @@ if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'eng':
 
     ANSWER_WRONG_MESSAGE = 'The answers are wrong.'
 
-    USER_EXIST_WITH_UUID_MESSAGE = 'user exist with uuid: {}'
+    USER_EXIST_WITH_UUID_MESSAGE = 'user exist with uuid: '
 
     # USERNAME_NOT_REGISTER_MESSAGE = 'This username is not registered.'
     USERNAME_NOT_REGISTER_MESSAGE = 'Username does not match password.'
@@ -236,15 +238,15 @@ if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'eng':
 
     ENTER_USERNAME_MESSAGE = 'enter username or email address or phone number.'
 
-    INPUT_NOT_SET_MESSAGE = " Input {} is not set."
+    INPUT_NOT_SET_MESSAGE = " Input is not set."
 
-    INPUT_LENGTH_NOT_SET_MESSAGE = " {} input length is not set correctly."
-    INPUT_TYPE_NOT_SET_MESSAGE = " Input data type {} is not set correctly."
+    INPUT_LENGTH_NOT_SET_MESSAGE = " input length is not set correctly."
+    INPUT_TYPE_NOT_SET_MESSAGE = " Input data type is not set correctly."
     STATUS_NOT_SET_MESSAGE = "'status' is not in arguments."
     MESSAGE_NOT_SET_MESSAGE = "'message' is not in arguments."
     CODE_NOT_SET_MESSAGE = "'code' is not in arguments."
     DATA_NOT_SET_MESSAGE = "'data' is not in arguments."
-    OUTPUT_NOT_SET_MESSAGE = " Output {} is not set."
+    OUTPUT_NOT_SET_MESSAGE = " Output is not set."
 
     TYPE_NAME_IS_NOT_DEFINE_MESSAGE = 'Type name is not define.'
     RANDOM_QUESTION_SEND_MESSAGE = 'Random question sent.'
@@ -255,3 +257,5 @@ if os.getenv('MESSAGE_LAGUEAGE_CHOICES') == 'eng':
 
     LIMITED_SMS_RECOVERY_MESSAGE = "You have overused password recovery using SMS. If possible, use other methods to " \
                                    "recover the password, and if you want to use this method, try again in 24 hours. "
+
+    UNIQUE_CONSTRAINT_FAILED = 'UNIQUE constraint failed'

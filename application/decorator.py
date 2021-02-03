@@ -24,8 +24,7 @@ def cleanData(rule):
                 return make_response(
                     jsonify(
                         {
-                            # 'status': o_c_data['status'],
-                            # 'code': o_c_data['code'],
+
                             'succsess': True,
                             'message': o_c_data['message'],
                             'data': data,
@@ -36,8 +35,7 @@ def cleanData(rule):
                 return make_response(
                     jsonify(
                         {
-                            # 'status': 'error',
-                            # 'code': '-1',
+
                             'succsess': False,
                             'message': ex.args,
                             'data': '',
@@ -77,8 +75,7 @@ def is_login(rule):
                     return make_response(
                         jsonify(
                             {
-                                # 'status': o_c_data['status'],
-                                # 'code': o_c_data['code'],
+
                                 'succsess': True,
                                 'message': o_c_data['message'],
                                 'data': data,
@@ -105,8 +102,7 @@ def is_login(rule):
                         return make_response(
                             jsonify(
                                 {
-                                    # 'status': o_c_data['status'],
-                                    # 'code': o_c_data['code'],
+
                                     'succsess': True,
                                     'message': o_c_data['message'],
                                     'data': data,
@@ -119,8 +115,7 @@ def is_login(rule):
                 return make_response(
                     jsonify(
                         {
-                            # 'status': 'error',
-                            # 'code': '-1',
+
                             'succsess': False,
                             'message': ex.args,
                             'data': '',

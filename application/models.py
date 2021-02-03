@@ -96,7 +96,7 @@ class User(db.Model):
     # required
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     uid = db.Column(db.String(50), unique=True)
-    role = db.Column(db.String(16), nullable=False)
+    role = db.Column(db.JSON, nullable=False)
     real_or_legal = db.Column(db.String(16), nullable=False)
     phone_number = db.Column(db.String(16), unique=True)
     phone_number_is_validated = db.Column(db.Boolean, default=False)
@@ -198,13 +198,6 @@ class User(db.Model):
             'national_id_company_owner': self.national_id_company_owner,
             'registration_id': self.registration_id,
         }
-
-    # @property
-    # def address_list(self):
-    #     addresses = dict()
-    #     for address in self.addresses:
-    #         addresses['{}'.format(address.id)] = address.address
-    #     return addresses
 
     @property
     def session_list(self):

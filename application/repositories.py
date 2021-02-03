@@ -1,3 +1,5 @@
+from flask import make_response, jsonify
+
 from repository.users import UserRepositoryBase
 from application.models import User, Token, VCode
 from application import db
@@ -36,15 +38,9 @@ class UserRepository(UserRepositoryBase):
         return db.session.query(User). \
             filter(or_(User.username == user_name,
                        User.username == phone_number,
-                       # User.username == email,
 
                        User.phone_number == user_name,
                        User.phone_number == phone_number,
-                       # User.phone_number == email,
-
-                       # User.email == user_name,
-                       # User.email == phone_number,
-                       # User.email == email,
                        )
                    ).first()
 
@@ -86,18 +82,6 @@ class UserRepository(UserRepositoryBase):
 
     @staticmethod
     def _page_recovery_by_answered_to_questions(user: User, question_answring: json) -> dict:
-        # from werkzeug.security import check_password_hash
-        # if not check_password_hash(user.answers, answers):
-        #     raise Exception(ANSWER_WRONG_MESSAGE)
-        # import string
-        # import random
-        # res = ''.join(random.choices(string.ascii_uppercase +
-        #                              string.digits, k=20))
-        # user.last_password_hash = user.password
-        # user.password = res
-        # db.session.commit()
-        # return {'user_name': user.phone_number, 'temporary_password': res}
-
         if question_answring == user.question_answring_1:
             pass
         elif question_answring == user.question_answring_2:
@@ -129,16 +113,22 @@ class UserRepository(UserRepositoryBase):
             clean_data['email'] = None
         old_usr = self._user_is_exist(email=clean_data['email'], phone_number=clean_data['phone_number'])
         if old_usr is not None:
-            raise Exception(USER_EXIST_WITH_UUID_MESSAGE.format(old_usr.uid))
-        usr = User(clean_data)
-        db.session.add(usr)
-        db.session.commit()
-        db.create_all()
-        return usr.to_dict
+            raise Exception([USER_EXIST_WITH_UUID_MESSAGE, old_usr.uid])
+        try:
+            usr = User(clean_data)
+            db.session.add(usr)
+            db.session.commit()
+            db.create_all()
+            return usr.to_dict
+        except Exception as ex:
+            err_t = ex.args[0]
+            err_t = err_t.split(":")
+            err_t = err_t[1]
+            err_t = [UNIQUE_CONSTRAINT_FAILED, err_t]
+            raise Exception(err_t)
 
     def update(self, clean_data: dict, key: str):
         uid = clean_data['user_id']
-        # device_info = clean_data['auth_token_info_extract']['device_information']
         usr = db.session.query(User).filter(User.id == uid).first()
         if key == 'update_phone_number':
             usr.phone_number_is_validated = False
@@ -284,7 +274,6 @@ class UserRepository(UserRepositoryBase):
             if usr is None:
                 raise Exception(USER_NOT_DEFINE_MESSAGE)
             return self._page_recovery_by_answered_to_questions(usr, clean_data['question_answring'])
-        # todo add true exception
         raise Exception(FROM_REPOSITORY_DOT_PAGE_DOT_RECOVERY_MESSAGE)
 
     def delete(self, clean_data: dict) -> Token:
@@ -366,25 +355,12 @@ class UserRepository(UserRepositoryBase):
                     return True
         return False
 
-    # def add_address(self, clean_data: dict) -> dict:
-    #     address = Address(clean_data)
-    #     db.session.add(address)
-    #     db.session.commit()
-    #     return address.to_dict
-    #
-    # def get_addresses(self, clean_data: dict) -> dict:
-    #     uid = clean_data['user_id']
-    #     usr = db.session.query(User).filter(User.id == uid).first()
-    #     ret = dict()
-    #     page = int(clean_data['page']) if 'page' in clean_data else 1
-    #     ret['addresses'] = self._jsonify_pagination(
-    #         db.session.query(Address).filter(Address.user_id == usr.id).paginate(page))
-    #     return ret
-
     def get_users(self, clean_data: dict) -> dict:
         usr_id = clean_data['user_id']
         usr = db.session.query(User).filter(User.id == usr_id).first()
-        if usr.role != 'superuser':
+        u_role = usr.role
+        u_role = u_role.lower()
+        if u_role.find('superuser') == 0:
             raise Exception(SUPERUSER_ACCESS_MESSAGE)
         ret = dict()
         page = int(clean_data['page']) if 'page' in clean_data else 1
@@ -427,3 +403,39 @@ class UserRepository(UserRepositoryBase):
         db.session.query(Token).filter((Token.user_id == uid) & (Token.token != auth_tkn)).delete()
         db.session.commit()
         return tkns
+
+
+def send_email(receiver, message_text):
+    import smtplib
+    import ssl
+
+    smtp_server = os.getenv('MAIL_SERVER')
+    port = os.getenv('MAIL_PORT')
+    sender_email = os.getenv('MAIL_SENDER')
+    password = os.getenv('MAIL_PASSWORD')
+
+    # Create a secure SSL context
+    context = ssl.create_default_context()
+    # Try to log in to server and send email
+    try:
+        server = smtplib.SMTP(smtp_server, port)
+        server.ehlo()  # Can be omitted
+        server.starttls(context=context)  # Secure the connection
+        server.ehlo()  # Can be omitted
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver, message_text)
+    except Exception as e:
+        # Print any error messages to stdout
+        print(e)
+    finally:
+        server.quit()
+
+
+def send_sms(receiver, message_text):
+    from application import melipayamak_api
+    sms = melipayamak_api.sms()
+    response = sms.send(to=receiver,
+                        _from=os.getenv('SMS_MELIPAYAMAK_FROM'),
+                        text=message_text
+                        )
+    return response
